@@ -45,46 +45,66 @@ class ProfessionalController {
        /**
      * 🔍 ENDPOINT API: Retorna profissionais com média de avaliações em tempo real (JSON)
      */
-    public function filtrarApi(): void {
-        header('Content-Type: application/json');
-        
-        $nome = filter_input(INPUT_GET, 'nome', FILTER_DEFAULT) ?? '';
-        $tecnologia = filter_input(INPUT_GET, 'tecnologia', FILTER_DEFAULT) ?? '';
+   public function filtrar(): void {
+    if (ob_get_length()) ob_clean();
+    header('Content-Type: application/json; charset=utf-8');
 
+    $nome = filter_input(INPUT_GET, 'nome', FILTER_DEFAULT) ?? '';
+    $tecnologia = filter_input(INPUT_GET, 'tecnologia', FILTER_DEFAULT) ?? '';
+
+    $nome = trim($nome);
+    $tecnologia = trim($tecnologia);
+
+    try {
         $db = Database::getInstance();
-        
-        // 🚀 CONSULTA AVANÇADA: INNER JOIN puxa o nome, LEFT JOIN calcula a média de estrelas e contagem de reviews
-        $sql = "SELECT p.id, p.user_id, p.category, p.bio, u.name as nome_usuario,
-                       IFNULL(AVG(r.stars), 0) as media_estrelas,
+
+        // QUERY AJUSTADA: Usando r.rating e vinculando r.professional_id com p.id
+        $sql = "SELECT p.id, p.user_id, p.category, p.bio, u.name as nome_usuario, 
+                       IFNULL(AVG(r.rating), 0) as media_estrelas,
                        COUNT(r.id) as total_avaliacoes
                 FROM professional_profiles p
-                INNER JOIN users u ON p.user_id = u.id 
-                LEFT JOIN reviews r ON p.user_id = r.receiver_id
+                INNER JOIN users u ON p.user_id = u.id
+                LEFT JOIN reviews r ON p.id = r.professional_id
                 WHERE 1=1";
+
         $params = [];
 
         if (!empty($nome)) {
             $sql .= " AND (u.name LIKE ? OR p.category LIKE ?)";
-            $params[] = "%$nome%";
-            $params[] = "%$nome%";
+            $params[] = "%{$nome}%";
+            $params[] = "%{$nome}%";
         }
 
         if (!empty($tecnologia)) {
             $sql .= " AND p.category LIKE ?";
-            $params[] = "%$tecnologia%";
+            $params[] = "%{$tecnologia}%";
         }
 
-        // Agrupa por profissional para o cálculo de agregação (AVG) funcionar corretamente
-        $sql .= " GROUP BY p.id, u.name";
+        // Agrupamento completo com as colunas selecionadas para evitar erros estritos de SQL
+        $sql .= " GROUP BY p.id, p.user_id, p.category, p.bio, u.name";
         $sql .= " ORDER BY media_estrelas DESC, p.id DESC";
 
         $stmt = $db->prepare($sql);
         $stmt->execute($params);
         $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        echo json_encode($resultados);
-        exit;
+        $json = json_encode($resultados, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
+
+        if ($json === false) {
+            throw new Exception("Falha na codificação JSON: " . json_last_error_msg());
+        }
+
+        echo $json;
+
+    } catch (Exception $e) {
+        error_log("Erro no filtro de profissionais: " . $e->getMessage());
+        echo json_encode([]);
     }
+
+    exit;
+}
+
+
 
 
     /**

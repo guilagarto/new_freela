@@ -55,7 +55,9 @@ $router->get('/dashboard/alternar', [DashboardController::class, 'alternarPerfil
 $router->get('/profissionais', [HomeController::class, 'profissionais']);
 
 $router->get('/profissionais', [ProfessionalController::class, 'index']);
-$router->get('/api/profissionais/filtrar', [ProfessionalController::class, 'filtrarApi']);
+// Altere a linha 58 para apontar para 'filtrar' em vez de 'filtrarApi'
+$router->get('/api/profissionais/filtrar', [ProfessionalController::class, 'filtrar']);
+
 $router->get('/profissional/completar-perfil', [ProfessionalController::class, 'mostrarCompletarPerfil']);
 $router->post('/profissional/completar-perfil', [ProfessionalController::class, 'salvarPerfilProfessional']);
 
@@ -75,6 +77,16 @@ $router->get('/vagas/excluir', [JobController::class, 'excluirVaga']);
 
 // 🚀 ROTA DO SISTEMA DE AVALIAÇÕES E RECOMPENSAS
 $router->post('/vagas/avaliar', [JobController::class, 'avaliarTrabalho']);
+
+// ... suas outras rotas acima ...
+
+$router->get('/api/profissionais/filtrar', [ProfessionalController::class, 'filtrar']);
+
+// GESTÃO DE AVALIAÇÕES E RECOMPENSAS
+$router->post('/vagas/avaliar', [JobController::class, 'avaliarTrabalho']);
+
+// Certifique-se de que a execução do roteador está limpa assim:
+$router->resolve();
 
 $router->resolve();
 
