@@ -107,7 +107,7 @@ class AuthController {
                 $_SESSION['professional_id'] = null;
             }
 
-            header('Location: ' . AppConfig::url('/')); // Mudar para /dashboard futuramente
+            header('Location: ' . AppConfig::url('/dashboard')); // Mudar para /dashboard futuramente
             exit;
         } else {
             $_SESSION['erro_auth'] = "E-mail ou senha inválidos.";

@@ -26,6 +26,8 @@ if (session_status() === PHP_SESSION_NONE) {
 use App\Core\Router;
 use App\Controllers\HomeController;
 use App\Controllers\AuthController;
+use App\Controllers\DashboardController; // 👈 ESSENCIAL!
+use App\Controllers\ProfessionalController;
 
 // 7. Instancia o roteador inteligente e autônomo
 $router = new Router();
@@ -33,8 +35,11 @@ $router = new Router();
 // 🚀 ROTAS DE VISUALIZAÇÃO (MÉTODO GET)
 $router->get('/', [HomeController::class, 'index']);
 $router->get('/teste-banco', [HomeController::class, 'testeBanco']);
+
 $router->get('/login', [AuthController::class, 'mostrarLogin']);
+$router->post('/login', [AuthController::class, 'autenticarUsuario']);
 $router->get('/cadastrar', [AuthController::class, 'mostrarCadastro']);
+$router->post('/cadastrar', [AuthController::class, 'cadastrarUsuario']);
 $router->get('/sair', [AuthController::class, 'sair']);
 
 // 🚀 ROTAS DE PROCESSAMENTO DE FORMULÁRIOS (MÉTODO POST)
@@ -47,6 +52,11 @@ $router->get('/dashboard', [DashboardController::class, 'index']);
 $router->get('/dashboard/alternar', [DashboardController::class, 'alternarPerfil']);
 
 $router->get('/profissionais', [HomeController::class, 'profissionais']);
+
+$router->get('/profissionais', [ProfessionalController::class, 'index']);
+$router->get('/api/profissionais/filtrar', [ProfessionalController::class, 'filtrarApi']);
+$router->get('/profissional/completar-perfil', [ProfessionalController::class, 'mostrarCompletarPerfil']);
+$router->post('/profissional/completar-perfil', [ProfessionalController::class, 'salvarPerfilProfessional']);
 
 $router->resolve();
 

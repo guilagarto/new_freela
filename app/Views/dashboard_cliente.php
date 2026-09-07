@@ -23,9 +23,7 @@
                 </a>
             <?php else: ?>
                 <p style="font-size: 14px; margin-bottom: 10px; color: #64748b;">Quer trabalhar na plataforma e receber por projetos?</p>
-                <a href="#" class="btn-action btn-primary" style="font-size: 13px; padding: 8px 16px; background-color: #16a34a; box-shadow: none;">
-                    🚀 Completar Perfil Freelancer
-                </a>
+                <a href="<?php echo \App\Config\AppConfig::url('/profissional/completar-perfil'); ?>" class="btn-action btn-primary" style="font-size: 13px; padding: 8px 16px; background-color: #16a34a; box-shadow: none;">🚀 Completar Perfil Freelancer</a>
             <?php endif; ?>
         </div>
 
