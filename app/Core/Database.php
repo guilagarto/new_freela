@@ -2,47 +2,53 @@
 
 namespace App\Core;
 
-use PDO;
-use PDOException;
-
 class Database {
-    private static ?PDO $instance = null;
+    private static ?\PDO $instance = null;
 
-    // Construtor privado impede que a classe seja instanciada com "new Database()" de fora
+    // Construtor privado impede instanciação externa
     private function __construct() {}
 
     /**
-     * Retorna a instância única da conexão com o banco de dados (Design Pattern Singleton)
+     * Retorna a instância única da conexão com o banco de dados (Singleton)
      */
-    public static function getInstance(): PDO {
+    public static function getInstance(): \PDO {
         if (self::$instance === null) {
-           // Procure o bloco try { ... } dentro do seu Database.php e substitua as variáveis por estas:
-try {
-    // Busca direto do superglobal $_ENV ou do getenv() nativo do Linux
-    $host = $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?? '127.0.0.1';
-    $port = $_ENV['DB_PORT'] ?? getenv('DB_PORT') ?? '3306';
-    $dbname = $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?? ''; // Remove o fallback rígido
-    $username = $_ENV['DB_USER'] ?? getenv('DB_USER') ?? 'root';
-    $password = $_ENV['DB_PASS'] ?? getenv('DB_PASS') ?? '';
+            try {
+                // Captura do $_ENV ou getenv para compatibilidade total local/web
+                $host = $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?? '127.0.0.1';
+                $port = $_ENV['DB_PORT'] ?? getenv('DB_PORT') ?? '3306';
+                $dbname = $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?? '';
+                $username = $_ENV['DB_USER'] ?? getenv('DB_USER') ?? 'root';
+                $password = $_ENV['DB_PASS'] ?? getenv('DB_PASS') ?? '';
 
-    // Se por acaso as variáveis vierem vazias, interrompe com aviso claro antes de quebrar o PDO
-    if (empty($dbname)) {
-        die("<h1>🚫 Erro Crítico: O nome do banco de dados está vázio no arquivo .env</h1>");
-    }
+                if (empty($dbname)) {
+                    http_response_code(500);
+                    die("<h1>🚫 Erro Crítico: O nome do banco de dados está vazio no arquivo .env</h1>");
+                }
 
-    $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset=utf8mb4";
+                $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset=utf8mb4";
 
+                $options = [
+                    \PDO::ATTR_ERRMODE            => \PDO::ERRMODE_EXCEPTION,
+                    \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+                    \PDO::ATTR_EMULATE_PREPARES   => false,
+                ];
 
-            } catch (PDOException $e) {
-                // Em produção, salve isso em um arquivo de log. Em desenvolvimento, exibe na tela.
+                self::$instance = new \PDO($dsn, $username, $password, $options);
+
+            } catch (\PDOException $e) { // 🚀 A MÁGICA: Barra invertida captura a exceção global do PDO
                 http_response_code(500);
-                die("<h1>🚫 Erro Crítico de Conexão com o Banco de Dados</h1><p>{$e->getMessage()}</p>");
+                echo "<div style='font-family:sans-serif; text-align:center; margin-top:50px;'>";
+                echo "<h1 style='color:#dc3545;'>🚫 Falha de Conexão com o Banco de Dados</h1>";
+                echo "<p style='color:#475569;'>Mensagem do Servidor: <strong>" . $e->getMessage() . "</strong></p>";
+                echo "<p style='color:#64748b;'>Verifique se as credenciais do seu arquivo <strong>.env</strong> estão corretas.</p>";
+                echo "</div>";
+                exit; // Interrompe o script de forma absoluta, impedindo o retorno de 'null'
             }
         }
 
         return self::$instance;
     }
 
-    // Impede a clonagem da classe por segurança
     private function __clone() {}
 }
