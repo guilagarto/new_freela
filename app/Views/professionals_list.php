@@ -69,21 +69,39 @@
 
                     // Monta os cards dinamicamente na tela
                                         // Atualizado para ler as propriedades reais retornadas pelo banco
+                                        // Atualizado para renderizar o bloco de reputação por estrelas dinâmicas
                     data.forEach(prof => {
+                        // Converte a média em número para manipulação
+                        const nota = parseFloat(prof.media_estrelas);
+                        let estrelasHTML = "";
+
+                        if (nota > 0) {
+                            // Arredonda a nota e monta a string visual de estrelas
+                            const estrelasCheias = Math.round(nota);
+                            estrelasHTML = `<span style="color: #eab308; font-size: 14px; font-weight: bold;">${"★".repeat(estrelasCheias)}${"☆".repeat(5 - estrelasCheias)}</span> ` +
+                                           `<span style="color: #64748b; font-size: 12px; font-weight: 600;">(${nota.toFixed(1)} • ${prof.total_avaliacoes} avaliações)</span>`;
+                        } else {
+                            estrelasHTML = `<span style="color: #a1a1aa; font-size: 11px; font-weight: bold; background: #f4f4f5; padding: 2px 6px; border-radius: 4px;">🆕 NOVO PROFISSIONAL</span>`;
+                        }
+
                         container.innerHTML += `
                             <div style="border: 1px solid #e2e8f0; background: #ffffff; padding: 20px; border-radius: 12px; display: flex; flex-direction: column; justify-content: space-between;">
                                 <div>
-                                    <h3 style="margin: 0 0 5px 0; font-size: 18px; color: #1e1b4b;">${prof.nome_usuario}</h3>
+                                    <h3 style="margin: 0 0 4px 0; font-size: 18px; color: #1e1b4b;">${prof.nome_usuario}</h3>
+                                    
+                                    <!-- Bloco de Reputação Acoplado -->
+                                    <div style="margin-bottom: 12px;">${estrelasHTML}</div>
+                                    
                                     <p style="margin: 0 0 10px 0; font-size: 14px; font-weight: 600; color: #4f46e5;">${prof.category}</p>
                                     <p style="margin: 0 0 15px 0; font-size: 13px; color: #475569; line-height: 1.4;">${prof.bio || 'Sem descrição biográfica.'}</p>
                                 </div>
                                 <div>
                                     <a href="<?php echo \App\Config\AppConfig::url('/vagas/publicar'); ?>" class="btn-action btn-primary" style="width: 100%; text-align: center; font-size: 13px; padding: 8px; font-weight: bold;">📥 Contratar Profissional</a>
-
                                 </div>
                             </div>
                         `;
                     });
+
 
                 });
         }

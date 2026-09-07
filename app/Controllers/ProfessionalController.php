@@ -42,6 +42,9 @@ class ProfessionalController {
         /**
      * 🔍 ENDPOINT API: Retorna profissionais filtrados em tempo real (JSON) - ATUALIZADO
      */
+       /**
+     * 🔍 ENDPOINT API: Retorna profissionais com média de avaliações em tempo real (JSON)
+     */
     public function filtrarApi(): void {
         header('Content-Type: application/json');
         
@@ -50,10 +53,13 @@ class ProfessionalController {
 
         $db = Database::getInstance();
         
-        // Ajustado para buscar 'category' no lugar de 'title' e remover a coluna skills que não existe
-        $sql = "SELECT p.id, p.user_id, p.category, p.bio, u.name as nome_usuario 
+        // 🚀 CONSULTA AVANÇADA: INNER JOIN puxa o nome, LEFT JOIN calcula a média de estrelas e contagem de reviews
+        $sql = "SELECT p.id, p.user_id, p.category, p.bio, u.name as nome_usuario,
+                       IFNULL(AVG(r.stars), 0) as media_estrelas,
+                       COUNT(r.id) as total_avaliacoes
                 FROM professional_profiles p
                 INNER JOIN users u ON p.user_id = u.id 
+                LEFT JOIN reviews r ON p.user_id = r.receiver_id
                 WHERE 1=1";
         $params = [];
 
@@ -63,13 +69,14 @@ class ProfessionalController {
             $params[] = "%$nome%";
         }
 
-        // Como não há tabela ou coluna de habilidades direta, filtramos a tecnologia pela própria categoria do perfil
         if (!empty($tecnologia)) {
             $sql .= " AND p.category LIKE ?";
             $params[] = "%$tecnologia%";
         }
 
-        $sql .= " ORDER BY p.id DESC";
+        // Agrupa por profissional para o cálculo de agregação (AVG) funcionar corretamente
+        $sql .= " GROUP BY p.id, u.name";
+        $sql .= " ORDER BY media_estrelas DESC, p.id DESC";
 
         $stmt = $db->prepare($sql);
         $stmt->execute($params);
