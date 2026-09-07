@@ -136,6 +136,9 @@ class JobController {
     /**
      * 📥 ENVIAR PROPOSTA (POST)
      */
+        /**
+     * 📥 ENVIAR PROPOSTA (POST) - COM CONSUMO REAL DE MOEDAS
+     */
     public function salvarProposta(): void {
         if (session_status() === PHP_SESSION_NONE) session_start();
 
@@ -153,7 +156,19 @@ class JobController {
 
         $db = Database::getInstance();
 
-        // 🧠 Descobre o ID do perfil profissional do freelancer logado
+        // 🧠 1. VERIFICA SE O FREELANCER TEM SALDO DE MOEDAS SUFICIENTE
+        $stmtUser = $db->prepare("SELECT moedas FROM users WHERE id = ?");
+        $stmtUser->execute([$userId]);
+        $userData = $stmtUser->fetch(\PDO::FETCH_ASSOC);
+        $saldoAtual = $userData['moedas'] ?? 0;
+
+        if ($saldoAtual < 2) {
+            $_SESSION['erro_proposta'] = "🚫 Saldo insuficiente! Você precisa de pelo menos 2 moedas para enviar propostas.";
+            header('Location: ' . AppConfig::url('/vagas/detalhes?id=' . $jobId));
+            exit;
+        }
+
+        // Descobre o ID do perfil profissional do freelancer
         $stmtProf = $db->prepare("SELECT id FROM professional_profiles WHERE user_id = ?");
         $stmtProf->execute([$userId]);
         $profile = $stmtProf->fetch(\PDO::FETCH_ASSOC);
@@ -164,17 +179,31 @@ class JobController {
             exit;
         }
 
-        // Grava a proposta na tabela proposals
-        $stmt = $db->prepare("INSERT INTO proposals (job_id, professional_profile_id, cover_letter, bid_amount, delivery_days) VALUES (?, ?, ?, ?, ?)");
-        $sucesso = $stmt->execute([$jobId, $profile['id'], $coverLetter, $bidAmount, $deliveryDays]);
+        // Inicia uma Transação no banco para garantir que as moedas só saiam se a proposta for gravada
+        $db->beginTransaction();
 
-        if ($sucesso) {
+        try {
+            // A. Insere a proposta comercial
+            $stmt = $db->prepare("INSERT INTO proposals (job_id, professional_profile_id, cover_letter, bid_amount, delivery_days) VALUES (?, ?, ?, ?, ?)");
+            $stmt->execute([$jobId, $profile['id'], $coverLetter, $bidAmount, $deliveryDays]);
+
+            // B. Deduz 2 moedas do saldo do usuário
+            $stmtDedução = $db->prepare("UPDATE users SET moedas = moedas - 2 WHERE id = ?");
+            $stmtDedução->execute([$userId]);
+
+            // C. Grava a movimentação no extrato histórico
+            $stmtHist = $db->prepare("INSERT INTO moedas_historico (user_id, quantidade, descricao) VALUES (?, -2, ?)");
+            $stmtHist->execute([$userId, "Envio de proposta para a vaga #{$jobId}"]);
+
+            $db->commit();
             header('Location: ' . AppConfig::url('/dashboard?proposta=enviada'));
-        } else {
-            $_SESSION['erro_proposta'] = "Erro ao registrar proposta. Tente novamente.";
+        } catch (\Exception $e) {
+            $db->rollBack();
+            $_SESSION['erro_proposta'] = "Erro interno ao processar moedas. Tente novamente.";
             header('Location: ' . AppConfig::url('/vagas/detalhes?id=' . $jobId));
         }
         exit;
     }
+
 
 }

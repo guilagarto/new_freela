@@ -78,7 +78,8 @@
                                     <p style="margin: 0 0 15px 0; font-size: 13px; color: #475569; line-height: 1.4;">${prof.bio || 'Sem descrição biográfica.'}</p>
                                 </div>
                                 <div>
-                                    <a href="#" class="btn-action btn-secondary" style="width: 100%; text-align: center; font-size: 13px; padding: 8px;">Contratar</a>
+                                    <a href="<?php echo \App\Config\AppConfig::url('/vagas/publicar'); ?>" class="btn-action btn-primary" style="width: 100%; text-align: center; font-size: 13px; padding: 8px; font-weight: bold;">📥 Contratar Profissional</a>
+
                                 </div>
                             </div>
                         `;

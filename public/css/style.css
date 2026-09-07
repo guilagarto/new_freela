@@ -290,4 +290,81 @@ body {
     transform: translateY(-2px) !important;
     box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08) !important;
 }
+/* --- 📱 RESPONSIVIDADE COMPLETA PARA O PAINEL CENTRAL (CELULAR) --- */
+@media screen and (max-width: 768px) {
+    /* Ajusta o menu superior para não embolar os botões */
+    .header-menu {
+        flex-direction: column !important;
+        gap: 12px !important;
+        padding: 10px !important;
+        position: static !important; /* Remove o fixed no celular para não cobrir o conteúdo */
+    }
+
+    .dashboard-layout {
+        margin: 20px auto !important; /* Remove o espaçamento gigante do topo */
+        width: 95% !important;
+        gap: 15px !important;
+    }
+
+    .section-card {
+        padding: 15px !important;
+    }
+
+    /* ⚡ A MÁGICA PROFISSIONAL DAS TABELAS NO CELULAR */
+    /* Desativa o comportamento de tabela rígida e transforma cada linha em um card moderno */
+    .data-table, 
+    .data-table thead, 
+    .data-table tbody, 
+    .data-table th, 
+    .data-table td, 
+    .data-table tr { 
+        display: block !important; 
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* Esconde o cabeçalho original da tabela no celular, pois leremos em formato de bloco */
+    .data-table thead { 
+        display: none !important; 
+    }
+    
+    /* Cria um espaçamento e borda entre cada registro */
+    .data-table tr {
+        margin-bottom: 15px !important;
+        padding-bottom: 15px !important;
+        border-bottom: 2px dashed #e2e8f0 !important;
+    }
+
+    .data-table tr:last-child {
+        border-bottom: none !important;
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+    }
+    
+    /* Estiliza cada célula para exibir o título do dado na esquerda */
+    .data-table td { 
+        text-align: right !important; /* Joga o valor real para a direita */
+        padding: 8px 5px !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+        position: relative !important;
+    }
+
+    .data-table td::before {
+        content: attr(data-label); /* Pega o texto explicativo da coluna */
+        position: absolute !important;
+        left: 5px !important;
+        font-weight: 700 !important;
+        color: #64748b !important;
+        font-size: 13px !important;
+    }
+
+    /* Ajusta o botão de excluir e ações para ocupar a linha inteira no celular */
+    .btn-danger {
+        display: block !important;
+        width: 100% !important;
+        text-align: center !important;
+        margin-top: 5px !important;
+        padding: 8px !important;
+    }
+}
 

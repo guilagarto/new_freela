@@ -66,5 +66,13 @@ $router->get('/vagas', [JobController::class, 'listarVagas']);
 $router->get('/vagas/detalhes', [JobController::class, 'detalhesVaga']);
 $router->post('/vagas/proposta', [JobController::class, 'salvarProposta']);
 
+// 🚀 ROTAS UNIFICADAS DO DASHBOARD CENTRAL
+$router->get('/dashboard', [DashboardController::class, 'index']);
+$router->post('/dashboard/perfil/atualizar', [DashboardController::class, 'atualizarPerfil']);
+
+// 🗑️ GESTÃO DE VAGAS DO USUÁRIO
+$router->get('/vagas/excluir', [JobController::class, 'excluirVaga']);
+
+
 $router->resolve();
 

@@ -47,20 +47,33 @@ class AuthController {
         }
 
         // Criptografia profissional Bcrypt para a senha
+                // Criptografia profissional Bcrypt para a senha
         $passwordHash = password_hash($password, PASSWORD_BCRYPT);
 
-        // Insere na tabela unificada 'users'
+        $db = Database::getInstance();
+
+        // 1. Insere o usuário ganhando as 20 moedas padrão automaticamente pelo banco (definido na estrutura)
         $stmt = $db->prepare("INSERT INTO users (name, email, password, tipo_cadastro) VALUES (?, ?, ?, ?)");
         $sucesso = $stmt->execute([$name, $email, $passwordHash, $tipo]);
 
         if ($sucesso) {
-            $_SESSION['sucesso_auth'] = "Conta criada com sucesso! Faça seu login.";
+            $lastId = $db->lastInsertId();
+
+            // 2. Grava a movimentação de entrada das moedas no histórico por segurança
+            $stmtHist = $db->prepare("INSERT INTO moedas_historico (user_id, quantidade, descricao) VALUES (?, 20, 'Bônus de boas-vindas')");
+            $stmtHist->execute([$lastId]);
+
+            // 3. Dispara o e-mail de boas-vindas com o manual de como usar as moedas
+            \App\Services\EmailService::enviarBoasVindas($name, $email);
+
+            $_SESSION['sucesso_auth'] = "Conta criada com sucesso com 20 moedas grátis! Faça seu login.";
             header('Location: ' . AppConfig::url('/login'));
         } else {
             $_SESSION['erro_auth'] = "Erro interno ao criar conta. Tente novamente.";
             header('Location: ' . AppConfig::url('/cadastrar'));
         }
         exit;
+
     }
 
     /**
