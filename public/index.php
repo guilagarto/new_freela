@@ -1,0 +1,52 @@
+<?php
+// 1. Ativa a exibição de erros total na fase de desenvolvimento local (XAMPP/Linux)
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// 2. Inicializa o Autoload clássico do Composer
+require_once __DIR__ . '/../vendor/autoload.php';
+
+// 🚀 SOLUÇÃO INQUEBRÁVEL PARA LINUX: Carrega o arquivo físico do banco manualmente na inicialização
+require_once __DIR__ . '/../app/Core/Database.php';
+
+// 3. Carrega as variáveis de ambiente seguras do arquivo .env
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+$dotenv->load();
+
+// 4. Importa o arquivo de configurações globais do ecossistema
+require_once __DIR__ . '/../app/Config/AppConfig.php';
+
+// 5. Inicia a sessão global do PHP de forma limpa e segura
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// 6. Importa os Namespaces das classes que serão utilizadas no roteamento
+use App\Core\Router;
+use App\Controllers\HomeController;
+use App\Controllers\AuthController;
+
+// 7. Instancia o roteador inteligente e autônomo
+$router = new Router();
+
+// 🚀 ROTAS DE VISUALIZAÇÃO (MÉTODO GET)
+$router->get('/', [HomeController::class, 'index']);
+$router->get('/teste-banco', [HomeController::class, 'testeBanco']);
+$router->get('/login', [AuthController::class, 'mostrarLogin']);
+$router->get('/cadastrar', [AuthController::class, 'mostrarCadastro']);
+$router->get('/sair', [AuthController::class, 'sair']);
+
+// 🚀 ROTAS DE PROCESSAMENTO DE FORMULÁRIOS (MÉTODO POST)
+$router->post('/login', [AuthController::class, 'autenticarUsuario']);
+$router->post('/cadastrar', [AuthController::class, 'cadastrarUsuario']);
+
+
+// 🚀 2. NOVAS ROTAS DO DASHBOARD E ALTERNÂNCIA
+$router->get('/dashboard', [DashboardController::class, 'index']);
+$router->get('/dashboard/alternar', [DashboardController::class, 'alternarPerfil']);
+
+$router->get('/profissionais', [HomeController::class, 'profissionais']);
+
+$router->resolve();
+

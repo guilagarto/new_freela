@@ -1,0 +1,14 @@
+<IfModule mod_rewrite.c>
+    # Impede que o usuário liste os arquivos da pasta se ela estiver vazia
+    Options -Indexes
+    Options -MultiViews
+
+    RewriteEngine On
+
+    # Se for um arquivo ou pasta física real (CSS, JS, Imagens), abre direto
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Redireciona todo o resto de forma limpa para o index.php
+    RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>
