@@ -186,3 +186,108 @@ body {
 .auth-footer-link a:hover {
     text-decoration: underline;
 }
+/* --- COMPONENTES DA HOME PÚBLICA AVANÇADA --- */
+
+/* Subtítulo decorativo */
+.sub-badge {
+    color: #4f46e5;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: block;
+}
+
+/* Grid de contadores de estatísticas */
+.stats-grid {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin: 25px 0;
+}
+
+.stat-item {
+    font-size: 14px;
+    color: #64748b;
+}
+
+.stat-item strong {
+    font-size: 20px;
+    color: #1e1b4b;
+    display: block;
+}
+
+/* Grid para os blocos de categorias */
+.categories-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1e1b4b;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 15px;
+    margin-bottom: 35px;
+}
+
+.category-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 15px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+}
+
+.category-card:hover {
+    background: #ffffff;
+    border-color: #4f46e5;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+
+.category-icon {
+    font-size: 24px;
+    display: block;
+    margin-bottom: 8px;
+}
+/* --- CORREÇÃO DEFINITIVA DO GRID DE CATEGORIAS --- */
+.categories-grid-limpo {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    gap: 15px !important;
+    margin: 20px auto 35px auto !important;
+    flex-wrap: wrap !important;
+    list-style: none !important;
+    padding: 0 !important;
+}
+
+.category-card-limpo {
+    background-color: #f1f5f9 !important; /* Cinza claro moderno */
+    border: 1px solid #cbd5e1 !important;
+    padding: 12px 20px !important;
+    border-radius: 10px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #334155 !important;
+    cursor: pointer !important;
+    transition: 0.2s ease-in-out !important;
+    display: inline-block !important;
+    text-align: center !important;
+}
+
+.category-card-limpo:hover {
+    background-color: #ffffff !important;
+    border-color: #4f46e5 !important;
+    color: #4f46e5 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08) !important;
+}
+

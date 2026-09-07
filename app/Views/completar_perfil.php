@@ -23,15 +23,11 @@
                 <input type="text" name="title" id="title" class="form-control" placeholder="Ex: Desenvolvedor PHP Sênior, Designer UI/UX" required>
             </div>
 
-            <div class="form-group">
-                <label for="skills">Tecnologia Principal / Habilidade *</label>
-                <select name="skills" id="skills" class="form-control" required>
-                    <option value="PHP" selected>PHP / Laravel</option>
-                    <option value="JavaScript">JavaScript / Node.js</option>
-                    <option value="Tailwind">Tailwind CSS / Design</option>
-                    <option value="Python">Python / Data Science</option>
-                </select>
+                        <div class="form-group">
+                <label for="title">Sua Profissão / Especialidade *</label>
+                <input type="text" name="title" id="title" class="form-control" placeholder="Ex: Encanador Residencial, Pedreiro Azulejista, Mecânico" required>
             </div>
+
 
             <div class="form-group">
                 <label for="bio">Apresentação / Biografia</label>

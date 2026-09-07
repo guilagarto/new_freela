@@ -11,16 +11,56 @@ class HomeController {
     /**
      * Renderiza a página inicial do ecossistema
      */
+       /**
+     * Renderiza a página inicial pública e dinâmica do ecossistema
+     */
+        /**
+     * Renderiza a página inicial pública e dinâmica do ecossistema
+     */
     public function index(): void {
-        $titulo = "8ou80 | Conexão de Freelancers Profissionais";
-        $viewPath = __DIR__ . '/../Views/home.php';
+        $titulo = "8ou80 | Encontre Profissionais Liberais e Vagas Freelancer";
+        
+        try {
+            $db = \App\Core\Database::getInstance();
+            
+            // 📊 1. Busca os contadores reais
+            $stmtVagas = $db->query("SELECT COUNT(*) as total FROM jobs WHERE status = 'aberto'");
+            $totalVagas = $stmtVagas->fetch()['total'] ?? 0;
 
+            $stmtFreelas = $db->query("SELECT COUNT(*) as total FROM professional_profiles");
+            $totalFreelas = $stmtFreelas->fetch()['total'] ?? 0;
+
+            // 🧰 2. BUSCA AS CATEGORIAS REAIS DO BANCO (Mágica Dinâmica)
+            // Seleciona as categorias distintas que possuem vagas abertas no momento
+            $stmtCat = $db->query("SELECT category, COUNT(*) as total_vagas 
+                                   FROM jobs 
+                                   WHERE status = 'aberto' 
+                                   GROUP BY category 
+                                   ORDER BY total_vagas DESC LIMIT 4");
+            $categoriesPopulares = $stmtCat->fetchAll(\PDO::FETCH_ASSOC);
+
+            // 💼 3. Traz as 3 vagas mais recentes
+            $stmtMural = $db->query("SELECT j.*, u.name as nome_cliente 
+                                     FROM jobs j 
+                                     INNER JOIN users u ON j.user_id = u.id 
+                                     WHERE j.status = 'aberto' 
+                                     ORDER BY j.id DESC LIMIT 3");
+            $vagasRecentes = $stmtMural->fetchAll(\PDO::FETCH_ASSOC);
+
+        } catch (\Exception $e) {
+            $totalVagas = 0;
+            $totalFreelas = 0;
+            $categoriesPopulares = [];
+            $vagasRecentes = [];
+        }
+
+        $viewPath = __DIR__ . '/../Views/home.php';
         if (file_exists($viewPath)) {
             require_once $viewPath;
-        } else {
-            die("<h1>Erro: A View home.php não foi encontrada na pasta app/Views/</h1>");
         }
     }
+
+
 
     /**
      * Testa a conexão real com o banco de dados

@@ -28,6 +28,7 @@ use App\Controllers\HomeController;
 use App\Controllers\AuthController;
 use App\Controllers\DashboardController; // 👈 ESSENCIAL!
 use App\Controllers\ProfessionalController;
+use App\Controllers\JobController;
 
 // 7. Instancia o roteador inteligente e autônomo
 $router = new Router();
@@ -57,6 +58,13 @@ $router->get('/profissionais', [ProfessionalController::class, 'index']);
 $router->get('/api/profissionais/filtrar', [ProfessionalController::class, 'filtrarApi']);
 $router->get('/profissional/completar-perfil', [ProfessionalController::class, 'mostrarCompletarPerfil']);
 $router->post('/profissional/completar-perfil', [ProfessionalController::class, 'salvarPerfilProfessional']);
+
+$router->get('/vagas/publicar', [JobController::class, 'mostrarPublicar']);
+$router->post('/vagas/publicar', [JobController::class, 'salvarVaga']);
+
+$router->get('/vagas', [JobController::class, 'listarVagas']);
+$router->get('/vagas/detalhes', [JobController::class, 'detalhesVaga']);
+$router->post('/vagas/proposta', [JobController::class, 'salvarProposta']);
 
 $router->resolve();
 

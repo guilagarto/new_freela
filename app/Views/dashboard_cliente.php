@@ -28,7 +28,7 @@
         </div>
 
         <div class="button-group">
-            <a href="#" class="btn-action btn-primary">➕ Publicar Nova Vaga</a>
+            <a href="<?php echo \App\Config\AppConfig::url('/vagas/publicar'); ?>" class="btn-action btn-primary">➕ Publicar Nova Vaga</a>
             <a href="<?php echo \App\Config\AppConfig::url('/sair'); ?>" class="btn-action btn-secondary" style="color: #dc3545;">Sair da Conta</a>
         </div>
     </div>

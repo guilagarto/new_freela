@@ -18,13 +18,20 @@
                 <input type="text" id="busca-nome" class="form-control" placeholder="🔍 Buscar por nome ou título...">
             </div>
             <div style="flex: 1; min-width: 200px;">
+                           <div style="flex: 1; min-width: 200px;">
                 <select id="busca-tecnologia" class="form-control">
-                    <option value="">Todas as Tecnologias</option>
-                    <option value="PHP">PHP</option>
-                    <option value="JavaScript">JavaScript</option>
-                    <option value="Tailwind">Tailwind CSS</option>
-                    <option value="Python">Python</option>
+                    <option value="">Todas as Profissões</option>
+                    
+                    <!-- 🚀 LOOP DINÂMICO: Renderiza apenas as profissões reais do banco -->
+                    <?php if (!empty($todasCategorias)): ?>
+                        <?php foreach ($todasCategorias as $cat): ?>
+                            <option value="<?php echo $cat; ?>"><?php echo $cat; ?></option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                    
                 </select>
+            </div>
+
             </div>
         </div>
 

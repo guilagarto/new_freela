@@ -11,14 +11,30 @@ class ProfessionalController {
     /**
      * Exibe a página principal de listagem de profissionais
      */
+       /**
+     * Exibe a página principal de listagem de profissionais com categorias dinâmicas
+     */
     public function index(): void {
-        $titulo = "Buscar Freelas | 8ou80.site";
-        $viewPath = __DIR__ . '/../Views/professionals_list.php';
+        $titulo = "Buscar Profissionais | 8ou80.site";
         
+        try {
+            $db = Database::getInstance();
+            
+            // 🧠 CAPTURA DINÂMICA: Busca todas as categorias reais que os profissionais digitaram no banco
+            // Remove duplicadas usando o DISTINCT para não repetir o mesmo termo na lista
+            $stmtCat = $db->query("SELECT DISTINCT category FROM professional_profiles WHERE category IS NOT NULL AND category != '' ORDER BY category ASC");
+            $todasCategorias = $stmtCat->fetchAll(PDO::FETCH_COLUMN);
+            
+        } catch (\Exception $e) {
+            $todasCategorias = [];
+        }
+
+        $viewPath = __DIR__ . '/../Views/professionals_list.php';
         if (file_exists($viewPath)) {
             require_once $viewPath;
         }
     }
+
 
     /**
      * 🔍 ENDPOINT API: Retorna profissionais filtrados em tempo real (JSON)

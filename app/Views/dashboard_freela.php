@@ -23,7 +23,7 @@
         </div>
 
         <div class="button-group">
-            <a href="#" class="btn-action btn-primary" style="background-color: #8b5cf6; box-shadow: 0 4px 14px rgba(139, 92, 246, 0.3);">💼 Procurar Projetos</a>
+            <a href="<?php echo \App\Config\AppConfig::url('/vagas'); ?>" class="btn-action btn-primary" style="background-color: #8b5cf6; box-shadow: 0 4px 14px rgba(139, 92, 246, 0.3);">💼 Procurar Projetos</a>
             <a href="<?php echo \App\Config\AppConfig::url('/sair'); ?>" class="btn-action btn-secondary" style="color: #dc3545;">Sair da Conta</a>
         </div>
     </div>
