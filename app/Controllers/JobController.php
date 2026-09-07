@@ -204,6 +204,73 @@ class JobController {
         }
         exit;
     }
+        /**
+     * 📥 PROCESSA A AVALIAÇÃO DO TRABALHO E PAGA BÔNUS DE MOEDA (POST)
+     */
+    public function avaliarTrabalho(): void {
+        if (session_status() === PHP_SESSION_NONE) session_start();
+
+        $jobId = filter_input(INPUT_POST, 'job_id', FILTER_VALIDATE_INT);
+        $freelaUserId = filter_input(INPUT_POST, 'freela_user_id', FILTER_VALIDATE_INT); // ID do usuário do freelancer
+        $stars = filter_input(INPUT_POST, 'stars', FILTER_VALIDATE_INT);
+        $comment = filter_input(INPUT_POST, 'comment', FILTER_DEFAULT);
+        $clientId = $_SESSION['user_id'] ?? null;
+
+        if (!$jobId || !$freelaUserId || !$stars || !$clientId) {
+            $_SESSION['erro_review'] = "Dados inválidos para computar a avaliação.";
+            header('Location: ' . AppConfig::url('/dashboard'));
+            exit;
+        }
+
+        // Valida se a nota está no intervalo correto
+        if ($stars < 1 || $stars > 5) {
+            $_SESSION['erro_review'] = "A nota deve ser de 1 a 5 estrelas.";
+            header('Location: ' . AppConfig::url('/dashboard'));
+            exit;
+        }
+
+        $db = Database::getInstance();
+        
+        // Inicia uma transação segura para garantir que as moedas entrem apenas se a nota for gravada
+        $db->beginTransaction();
+
+        try {
+            // 1. Grava a avaliação na tabela reviews
+            $stmt = $db->prepare("INSERT INTO reviews (job_id, voter_id, receiver_id, stars, comment) VALUES (?, ?, ?, ?, ?)");
+            $stmt->execute([$jobId, $clientId, $freelaUserId, $stars, $comment]);
+
+            // 2. Muda o status da vaga para 'concluido'
+            $stmtJob = $db->prepare("UPDATE jobs SET status = 'concluido' WHERE id = ?");
+            $stmtJob->execute([$jobId]);
+
+            // 3. 🎯 A MÁGICA: Se ganhou 5 estrelas, ganha 1 moeda de bônus!
+            $ganhouBonus = false;
+            if ($stars === 5) {
+                // A. Adiciona 1 moeda ao saldo do freelancer
+                $stmtBonus = $db->prepare("UPDATE users SET moedas = moedas + 1 WHERE id = ?");
+                $stmtBonus->execute([$freelaUserId]);
+
+                // B. Grava o ganho no histórico/extrato de moedas por segurança
+                $stmtHist = $db->prepare("INSERT INTO moedas_historico (user_id, quantidade, descricao) VALUES (?, 1, ?)");
+                $stmtHist->execute([$freelaUserId, "Bônus por receber avaliação 5 estrelas no projeto #{$jobId}"]);
+                $ganhouBonus = true;
+            }
+
+            $db->commit();
+            
+            $_SESSION['sucesso_dashboard'] = $ganhouBonus 
+                ? "Avaliação enviada! O profissional recebeu 5 estrelas e ganhou 1 moeda de recompensa. 🌟" 
+                : "Avaliação enviada com sucesso e projeto concluído!";
+                
+        } catch (\Exception $e) {
+            $db->rollBack();
+            $_SESSION['erro_review'] = "Você já avaliou este projeto ou ocorreu um erro interno.";
+        }
+
+        header('Location: ' . AppConfig::url('/dashboard'));
+        exit;
+    }
+
 
 
 }

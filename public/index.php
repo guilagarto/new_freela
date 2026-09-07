@@ -73,6 +73,8 @@ $router->post('/dashboard/perfil/atualizar', [DashboardController::class, 'atual
 // 🗑️ GESTÃO DE VAGAS DO USUÁRIO
 $router->get('/vagas/excluir', [JobController::class, 'excluirVaga']);
 
+// 🚀 ROTA DO SISTEMA DE AVALIAÇÕES E RECOMPENSAS
+$router->post('/vagas/avaliar', [JobController::class, 'avaliarTrabalho']);
 
 $router->resolve();
 

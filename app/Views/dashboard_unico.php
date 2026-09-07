@@ -84,16 +84,45 @@
                         <tr><td colspan="5" style="color: #64748b; text-align: center; padding: 20px;">Você ainda não publicou nenhuma vaga de trabalho.</td></tr>
                     <?php else: ?>
                         <?php foreach ($minhasVagas as $job): ?>
-                        <tr>
-                            <td data-label="Projeto: " style="font-weight: 600; color: #1e1b4b;"><?php echo $job['title']; ?></td>
-                            <td data-label="Categoria: "><span style="background:#f1f5f9; padding: 3px 8px; border-radius: 6px; font-size:12px;"><?php echo $job['category']; ?></span></td>
-                            <td data-label="Orçamento: " style="color: #16a34a; font-weight: 600;"><?php echo $job['budget'] ? 'R$ ' . number_format($job['budget'], 2, ',', '.') : 'A combinar'; ?></td>
-                            <td data-label="Status: "><span style="color: #4f46e5; font-weight: 600;"><?php echo ucfirst($job['status']); ?></span></td>
-                            <td style="text-align: center;">
-                                <a href="<?php echo \App\Config\AppConfig::url('/vagas/excluir?id=' . $job['id']); ?>" class="btn-danger" onclick="return confirm('Tem certeza que deseja remover esta vaga permanentemente?');">🗑️ Excluir</a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
+    <tr>
+        <td data-label="Projeto: " style="font-weight: 600; color: #1e1b4b;"><?php echo $job['title']; ?></td>
+        <td data-label="Categoria: "><span style="background:#f1f5f9; padding: 3px 8px; border-radius: 6px; font-size:12px;"><?php echo $job['category']; ?></span></td>
+        <td data-label="Orçamento: " style="color: #16a34a; font-weight: 600;"><?php echo $job['budget'] ? 'R$ ' . number_format($job['budget'], 2, ',', '.') : 'A combinar'; ?></td>
+        <td data-label="Status: "><span style="color: #4f46e5; font-weight: 600;"><?php echo ucfirst($job['status']); ?></span></td>
+        <td style="text-align: center;">
+            
+            <!-- Se o projeto está aberto, o cliente pode excluir ou finalizar avaliando -->
+            <?php if ($job['status'] === 'aberto'): ?>
+                <div style="display: flex; flex-direction: column; gap: 8px; align-items: center;">
+                    
+                    <!-- Formulário Rápido de Conclusão e Avaliação -->
+                    <form action="<?php echo \App\Config\AppConfig::url('/vagas/avaliar'); ?>" method="POST" style="background: #f8fafc; padding: 8px; border-radius: 8px; border: 1px solid #cbd5e1; display: flex; gap: 5px; align-items: center;">
+                        <input type="hidden" name="job_id" value="<?php echo $job['id']; ?>">
+                        
+                        <!-- 🧠 IMPORTANTE: Em um cenário real com propostas aceitas, buscaríamos o id do freela contratado. 
+                             Para este teste inicial, passaremos fixo o ID do usuário para quem vai receber a nota. -->
+                        <input type="hidden" name="freela_user_id" value="3"> 
+                        
+                        <select name="stars" class="form-control" style="padding: 4px; font-size: 12px; width: auto; height: auto;" required>
+                            <option value="5">🌟 5 Estrelas</option>
+                            <option value="4">⭐ 4 Estrelas</option>
+                            <option value="3">⭐ 3 Estrelas</option>
+                            <option value="2">⭐ 2 Estrelas</option>
+                            <option value="1">⭐ 1 Estrela</option>
+                        </select>
+                        <button type="submit" class="btn-action btn-primary" style="padding: 4px 8px; font-size: 11px; background-color: #16a34a; box-shadow: none;">✔ Concluir</button>
+                    </form>
+
+                    <a href="<?php echo \App\Config\AppConfig::url('/vagas/excluir?id=' . $job['id']); ?>" class="btn-danger" onclick="return confirm('Tem certeza que deseja remover esta vaga permanentemente?');" style="padding: 4px 10px; font-size: 11px;">🗑️ Excluir</a>
+                </div>
+            <?php else: ?>
+                <span style="color: #64748b; font-size: 12px; font-weight: bold;">✅ Projeto Encerrado</span>
+            <?php endif; ?>
+
+        </td>
+    </tr>
+<?php endforeach; ?>
+
 
                     <?php endif; ?>
                 </tbody>
