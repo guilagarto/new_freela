@@ -130,6 +130,89 @@ public function landingPage(): void {
     public function termosDeUso(): void {
         require_once __DIR__ . '/../Views/termos.php';
     }
+        /**
+     * Processa o formulário de contato e envia as notificações por e-mail
+     */
+    public function enviarContato(): void {
+        // 1. Limpa qualquer saída residual para não corromper os cabeçalhos
+        if (ob_get_length()) ob_clean();
+
+        // 2. Captura e limpa os campos recebidos via POST
+        $nome = filter_input(INPUT_POST, 'nome', FILTER_DEFAULT);
+        $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
+        $mensagem = filter_input(INPUT_POST, 'mensagem', FILTER_DEFAULT);
+
+        // Se houver qualquer campo inválido ou vazio, retorna para a tela com aviso
+        if (!$nome || !$email || !$mensagem) {
+            header('Location: ' . \App\Config\AppConfig::url('/contato?erro=campos_invalidos'));
+            exit;
+        }
+
+        $nome = trim($nome);
+        $mensagem = trim($mensagem);
+
+        try {
+            // =========================================================================
+            // CONFIGURAÇÕES DE E-MAIL (ADAPTE COM SEUS DADOS)
+            // =========================================================================
+            
+            // Em produção (Hostinger), use contas reais do seu próprio domínio
+            $emailRemetente = "contato@talentohub.com.br"; 
+            $emailAdmin = "admin@talentohub.com.br";
+
+            // Configuração dos cabeçalhos padrões para e-mail em formato HTML e UTF-8
+            $headersBase = "MIME-Version: 1.0\r\n";
+            $headersBase .= "Content-Type: text/html; charset=UTF-8\r\n";
+            $headersBase .= "From: TalentoHub <" . $emailRemetente . ">\r\n";
+
+            // -------------------------------------------------------------------------
+            // DISPARO 1: NOTIFICAÇÃO PARA O ADMINISTRADOR (ALERTA)
+            // -------------------------------------------------------------------------
+            $assuntoAdmin = "📥 Nova mensagem recebida no Fale Conosco";
+            $corpoAdmin = "
+                <div style='font-family: Arial, sans-serif; padding: 20px; color: #1e1b4b;'>
+                    <h2 style='color: #4f46e5;'>Olá, Administrador!</h2>
+                    <p>Um usuário enviou uma nova mensagem através do site.</p>
+                    <hr style='border: 1px solid #e2e8f0; margin: 20px 0;'>
+                    <p><b>Nome:</b> {$nome}</p>
+                    <p><b>E-mail:</b> {$email}</p>
+                    <p><b>Mensagem:</b></p>
+                    <div style='background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; font-style: italic;'>
+                        " . nl2br(htmlspecialchars($mensagem, ENT_QUOTES, 'UTF-8')) . "
+                    </div>
+                </div>
+            ";
+            
+            // Dispara apenas se não estiver em ambiente local (localhost muitas vezes não tem sendmail ativo)
+            if ($_SERVER['HTTP_HOST'] !== 'localhost') {
+                mail($emailAdmin, $assuntoAdmin, $corpoAdmin, $headersBase);
+            }
+
+            // -------------------------------------------------------------------------
+            // DISPARO 2: CONFIRMAÇÃO PARA O USUÁRIO (CÓPIA)
+            // -------------------------------------------------------------------------
+            $assuntoUsuario = "🚀 Recebemos sua mensagem! - TalentoHub";
+            $corpoUsuario = "
+                <div style='font-family: Arial, sans-serif; padding: 20px; color: #1e1b4b;'>
+                    <h2 style='color: #4f46e5;'>Olá, {$nome}!</h2>
+                    <p>Confirmamos que a sua mensagem foi recebida com sucesso pela nossa central de suporte. Responderemos diretamente neste e-mail em até 24 horas úteis.</p>
+                </div>
+            ";
+            
+            if ($_SERVER['HTTP_HOST'] !== 'localhost') {
+                mail($email, $assuntoUsuario, $corpoUsuario, $headersBase);
+            }
+
+            // Redireciona de volta informando o sucesso
+            header('Location: ' . \App\Config\AppConfig::url('/contato?sucesso=1'));
+
+        } catch (Exception $e) {
+            error_log("Erro ao processar envio de contato: " . $e->getMessage());
+            header('Location: ' . \App\Config\AppConfig::url('/contato?erro=falha_servidor'));
+        }
+        exit;
+    }
+
 
 
 

@@ -91,26 +91,28 @@ $router->post('/vagas/avaliar', [JobController::class, 'avaliarTrabalho']);
 // =========================================================================
 
 // Rota da Home Oficial do seu site (aquela que já estava pronta)
-$router->get('/', [\App\Controllers\HomeController::class, 'index']);
+$router->get('/', [HomeController::class, 'index']);
 
 // Rota da Landing Page avulsa de captação (Campanhas de Anúncios)
-$router->get('/descubra', [\App\Controllers\HomeController::class, 'landingPage']);
+$router->get('/descubra', [HomeController::class, 'landingPage']);
 
 // Rota para abrir a página do Blog (Notícias)
-$router->get('/blog', [\App\Controllers\BlogController::class, 'index']);
+$router->get('/blog', [BlogController::class, 'index']);
 
 // Rota para abrir a página de Formulário de Contato
-$router->get('/contato', [\App\Controllers\HomeController::class, 'contato']);
+$router->get('/contato', [HomeController::class, 'contato']);
 
 // Rota para processar o envio dos dados do formulário de contato (POST)
-$router->post('/contato/enviar', [\App\Controllers\HomeController::class, 'enviarContato']);
-
-// Novas rotas institucionais integradas ao ecossistema
-$router->get('/descubra', [HomeController::class, 'landingPage']);
-$router->get('/blog', [BlogController::class, 'index']);
+$router->post('/contato/enviar', [HomeController::class, 'enviarContato']);
+// Rota para abrir a página de Formulário de Contato (GET)
 $router->get('/contato', [HomeController::class, 'contato']);
+
+// 1. ROTA PADRÃO (Para quando estiver na Hostinger)
 $router->post('/contato/enviar', [HomeController::class, 'enviarContato']);
 
+
+// Mantém o resolve por último
+$router->resolve();
 
 // Rotas institucionais do Rodapé
 $router->get('/politica-de-privacidade', [HomeController::class, 'politicaPrivacidade']);
@@ -118,6 +120,7 @@ $router->get('/termos-de-uso', [HomeController::class, 'termosDeUso']);
 
 // Deixe sempre o resolve por último
 $router->resolve();
+
 
 
 
