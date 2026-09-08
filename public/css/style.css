@@ -366,5 +366,149 @@ body {
         margin-top: 5px !important;
         padding: 8px !important;
     }
+    
 }
+/* ========================================================================= */
+/* NAVBAR, COMPONENTES INSTITUCIONAIS E RODAPÉ RESPONSIVO                    */
+/* ========================================================================= */
+:root {
+    --primary: #4f46e5;
+    --primary-hover: #4338ca;
+    --text-main: #1e1b4b;
+    --text-muted: #475569;
+    --bg-light: #f8fafc;
+}
+
+/* Menu de Navegação Global */
+.main-header {
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    width: 100% !important;
+    position: relative; /* ou fixed se preferir que ele corra junto com a rolagem */
+    top: 0;
+    left: 0;
+    z-index: 9999;
+}
+
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+}
+
+.nav-logo {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-main);
+    text-decoration: none;
+}
+
+.nav-menu {
+    display: flex;
+    gap: 20px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-link {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: color 0.2s;
+}
+
+.nav-link:hover {
+    color: var(--primary);
+}
+
+/* Banner Principal (Hero Section) */
+.hero-section {
+    padding: 80px 20px;
+    text-align: center;
+    background: linear-gradient(135deg, #f5f3ff 0%, #e0e7ff 100%);
+}
+
+.hero-title {
+    font-size: 42px;
+    color: var(--text-main);
+    margin-bottom: 15px;
+    font-weight: 800;
+}
+
+.hero-subtitle {
+    font-size: 18px;
+    color: var(--text-muted);
+    max-width: 600px;
+    margin: 0 auto 30px auto;
+}
+
+/* Formulário de Contato Estilizado */
+.contato-wrapper {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 30px;
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* Rodapé */
+.main-footer {
+    background: #0f172a;
+    color: #94a3b8;
+    padding: 40px 20px;
+    margin-top: 60px;
+    text-align: center;
+}
+
+.footer-links {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.footer-link {
+    color: #cbd5e1;
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.footer-link:hover {
+    color: #ffffff;
+}
+
+/* Adaptação Exclusiva para Celular (Mobile) */
+@media (max-width: 768px) {
+    .nav-container {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .nav-menu {
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+    }
+    
+    .hero-title {
+        font-size: 30px;
+    }
+    
+    .footer-links {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+
+}
+
 

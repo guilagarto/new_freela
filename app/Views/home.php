@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="<?php echo \App\Config\AppConfig::url('/css/style.css'); ?>">
 </head>
 <body>
+<?php include __DIR__ . '/partials/header.php'; ?>
 
     <div class="welcome-container" style="max-width: 850px;">
         <span class="sub-badge">A plataforma do trabalhador autônomo</span>
@@ -69,5 +70,6 @@
         <?php endif; ?>
     </div>
 
-</body>
-</html>
+<!-- Última linha do arquivo home.php -->
+<?php include __DIR__ . '/partials/footer.php'; ?>
+

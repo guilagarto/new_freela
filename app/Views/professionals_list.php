@@ -7,11 +7,13 @@
     <link rel="stylesheet" href="<?php echo \App\Config\AppConfig::url('/css/style.css'); ?>">
 </head>
 <body>
+<?php include __DIR__ . '/partials/header.php'; ?>
 
-  <!-- ESTILOS EXCLUSIVOS DA VIEW PARA GARANTIR RESPONSIVIDADE EM QUALQUER CELULAR -->
+<!-- ESTILOS EXCLUSIVOS DA VIEW PARA GARANTIR RESPONSIVIDADE EM QUALQUER CELULAR -->
 <style>
     /* Container principal da página */
     .pagina-container {
+
         width: 100%;
         max-width: 1200px;
         margin: 0 auto;
@@ -123,7 +125,7 @@
     </div>
 
     <!-- Container Onde os Cards Serão Injetados Dinamicamente via AJAX -->
-    <div id="lista-profissionais" class="grid-profissionais-mobile">
+    <div id="lista-profissionais" class="grid-profissionais-mobile" style="margin-bottom: 120px !important;">
         <!-- O script preencherá este espaço automaticamente -->
     </div>
 
@@ -233,7 +235,6 @@ document.addEventListener("DOMContentLoaded", function() {
     carregarProfissionais();
 });
 </script>
-
+<?php include __DIR__ . '/partials/footer.php'; ?>
     
-</body>
-</html>
+

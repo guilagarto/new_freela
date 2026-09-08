@@ -98,4 +98,40 @@ class HomeController {
         echo "</div>";
     }
 
+    /**
+ * Renderiza a Landing Page avulsa de captação (Campanhas Externas)
+ */
+public function landingPage(): void {
+    // Carrega o arquivo diretamente, ignorando o header e footer globais do sistema
+    require_once __DIR__ . '/../Views/landing_page.php';
+    exit;
+}
+
+    /**
+     * Renderiza a Página de Contato Institucional
+     */
+    public function contato(): void {
+        // Garanta que o nome do arquivo aqui esteja idêntico ao da pasta Views
+        require_once __DIR__ . '/../Views/contato.php';
+    }
+        /**
+     * Renderiza a página de Política de Privacidade
+     */
+     /**
+     * Renderiza a página de Política de Privacidade
+     */
+    public function politicaPrivacidade(): void {
+        require_once __DIR__ . '/../Views/politica.php';
+    }
+
+    /**
+     * Renderiza a página de Termos de Uso
+     */
+    public function termosDeUso(): void {
+        require_once __DIR__ . '/../Views/termos.php';
+    }
+
+
+
+
 }

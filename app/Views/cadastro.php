@@ -7,6 +7,17 @@
     <link rel="stylesheet" href="<?php echo \App\Config\AppConfig::url('/css/style.css'); ?>">
 </head>
 <body>
+    <?php include __DIR__ . '/partials/header.php'; ?>
+
+<style>
+    .pagina-container-contato {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 100px 20px 40px 20px; /* Descola o formulário para baixo do menu fixo */
+        box-sizing: border-box;
+    }
+</style>
 
     <div class="welcome-container">
         <span class="badge-version">Novo Cadastro</span>
@@ -52,4 +63,6 @@
     </div>
 
 </body>
-</html>
+<?php include __DIR__ . '/partials/footer.php'; ?>
+
+

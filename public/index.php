@@ -29,6 +29,7 @@ use App\Controllers\AuthController;
 use App\Controllers\DashboardController; // 👈 ESSENCIAL!
 use App\Controllers\ProfessionalController;
 use App\Controllers\JobController;
+use App\Controllers\BlogController;
 
 // 7. Instancia o roteador inteligente e autônomo
 $router = new Router();
@@ -85,8 +86,38 @@ $router->get('/api/profissionais/filtrar', [ProfessionalController::class, 'filt
 // GESTÃO DE AVALIAÇÕES E RECOMPENSAS
 $router->post('/vagas/avaliar', [JobController::class, 'avaliarTrabalho']);
 
-// Certifique-se de que a execução do roteador está limpa assim:
+// =========================================================================
+// ROTAS INSTITUCIONAIS, BLOG E CONTATO
+// =========================================================================
+
+// Rota da Home Oficial do seu site (aquela que já estava pronta)
+$router->get('/', [\App\Controllers\HomeController::class, 'index']);
+
+// Rota da Landing Page avulsa de captação (Campanhas de Anúncios)
+$router->get('/descubra', [\App\Controllers\HomeController::class, 'landingPage']);
+
+// Rota para abrir a página do Blog (Notícias)
+$router->get('/blog', [\App\Controllers\BlogController::class, 'index']);
+
+// Rota para abrir a página de Formulário de Contato
+$router->get('/contato', [\App\Controllers\HomeController::class, 'contato']);
+
+// Rota para processar o envio dos dados do formulário de contato (POST)
+$router->post('/contato/enviar', [\App\Controllers\HomeController::class, 'enviarContato']);
+
+// Novas rotas institucionais integradas ao ecossistema
+$router->get('/descubra', [HomeController::class, 'landingPage']);
+$router->get('/blog', [BlogController::class, 'index']);
+$router->get('/contato', [HomeController::class, 'contato']);
+$router->post('/contato/enviar', [HomeController::class, 'enviarContato']);
+
+
+// Rotas institucionais do Rodapé
+$router->get('/politica-de-privacidade', [HomeController::class, 'politicaPrivacidade']);
+$router->get('/termos-de-uso', [HomeController::class, 'termosDeUso']);
+
+// Deixe sempre o resolve por último
 $router->resolve();
 
-$router->resolve();
+
 
