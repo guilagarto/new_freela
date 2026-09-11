@@ -93,8 +93,50 @@
     /* COMPORTAMENTO PARA CELULAR (MOBILE)                                       */
     /* ========================================================================= */
     @media (max-width: 768px) {
+            /* ========================================================================= */
+    /* COMPORTAMENTO PARA CELULAR (MOBILE)                                       */
+    /* ========================================================================= */
+    
+    /* Configuração para o Header sumir suavemente ao rolar a página */
+    header, .header-principal {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 9999;
+        background: #ffffff;
+        transition: transform 0.3s ease-in-out !important;
+    }
+
+    /* Classe que o JavaScript vai injetar para ocultar o menu */
+    .header-hidden {
+        transform: translateY(-100%) !important;
+    }
+
+    @media (max-width: 768px) {
+        /* CORREÇÃO DO ALINHAMENTO: Força a logo e as barrinhas a ficarem na mesma linha */
+        header nav, .nav-container, .header-wrapper { 
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            padding: 10px 15px !important;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
         .menu-toggle {
             display: block;
+            margin: 0 !important;
+            padding: 5px !important;
+            cursor: pointer;
+        }
+
+        /* Garante que o link da logo/foguete não quebre o alinhamento */
+        .logo, .navbar-brand, header a {
+            display: flex;
+            align-items: center;
+            margin: 0 !important;
         }
 
         .nav-menu {
@@ -137,6 +179,7 @@
         .nav-menu li:last-child .nav-link {
             border-bottom: none;
         }
+       }
     }
 </style>
 
@@ -180,4 +223,28 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+    // Captura o elemento header do projeto
+    const headerElement = document.querySelector("header") || document.querySelector(".header-principal");
+    if (!headerElement) return;
+
+    let ultimoScrollTop = 0;
+
+    window.addEventListener("scroll", () => {
+        const scrollAtual = window.pageYOffset || document.documentElement.scrollTop;
+
+        // Se rolar para baixo (mais de 40px), esconde. Se rolar para cima, mostra.
+        if (scrollAtual > ultimoScrollTop && scrollAtual > 40) {
+            headerElement.classList.add("header-hidden");
+        } else {
+            headerElement.classList.remove("header-hidden");
+        }
+
+        // Evita valores negativos em rolagens rápidas (comum no Safari/iOS)
+        ultimoScrollTop = scrollAtual <= 0 ? 0 : scrollAtual;
+    });
+});
+
+
 </script>

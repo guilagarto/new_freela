@@ -109,6 +109,9 @@ class ChatController {
         /**
      * Busca todos os usuários do sistema para listar na barra lateral do chat
      */
+       /**
+     * Busca os usuários que possuem propostas enviadas ou contratos ativos com o usuário logado
+     */
     public function listarUsuarios() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             echo json_encode([]);
@@ -120,18 +123,60 @@ class ChatController {
         try {
             $db = Database::getInstance();
             
-            // Busca os usuários cadastrados, ignorando o próprio usuário logado.
-            // NOTA: Se na tabela 'users' a coluna de nome se chamar 'nome' (em português), mude 'name' para 'nome' abaixo.
-            $stmt = $db->prepare("SELECT id, name FROM users WHERE id != ? ORDER BY name ASC");
-            $stmt->execute([$usuario_logado_id]);
+            /**
+             * SQL ADAPTADO PARA A SUA ESTRUTURA:
+             * 1. Busca usuários vinculados através da tabela 'proposals' cruzando com 'professional_profiles'
+             * 2. Busca usuários vinculados através da tabela 'contracts' (tanto como cliente quanto como profissional)
+             * 3. Une os resultados com UNION para listar todos sem duplicações
+             */
+            $query = "
+                SELECT DISTINCT u.id, u.name 
+                FROM users u
+                INNER JOIN professional_profiles pp ON pp.user_id = u.id
+                INNER JOIN proposals p ON p.professional_profile_id = pp.id
+                INNER JOIN jobs j ON j.id = p.job_id
+                WHERE j.user_id = ? AND u.id != ?
+
+                UNION
+
+                SELECT DISTINCT u.id, u.name 
+                FROM users u
+                INNER JOIN professional_profiles pp ON pp.user_id = u.id
+                INNER JOIN proposals p ON p.professional_profile_id = pp.id
+                WHERE pp.user_id = ? AND j.user_id != ?
+
+                UNION
+
+                SELECT DISTINCT u.id, u.name 
+                FROM users u
+                INNER JOIN contracts c ON (
+                    (c.client_id = ? AND c.professional_id = u.id) OR 
+                    (c.professional_id = ? AND c.client_id = u.id)
+                )
+                WHERE u.id != ?
+                ORDER BY name ASC
+            ";
+            
+            $stmt = $db->prepare($query);
+            
+            // Passamos as variáveis correspondentes a cada ponto de interrogação (?) definido no SQL combinado
+            $stmt->execute([
+                $usuario_logado_id, $usuario_logado_id, // Primeiro bloco (Dono da vaga vendo propostas)
+                $usuario_logado_id, $usuario_logado_id, // Segundo bloco (Freelancer vendo dono da vaga)
+                $usuario_logado_id, $usuario_logado_id, $usuario_logado_id // Terceiro bloco (Contratos mútuos)
+            ]);
+            
             $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             echo json_encode($usuarios);
             exit;
         } catch (PDOException $e) {
+            // Em caso de erro, você pode descomentar a linha abaixo para debug se a lista sumir:
+            // echo json_encode(['error' => $e->getMessage()]); exit;
             echo json_encode([]);
             exit;
         }
     }
+
 
 }
