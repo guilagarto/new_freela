@@ -17,6 +17,8 @@ $dotenv->load();
 // 4. Importa o arquivo de configurações globais do ecossistema
 require_once __DIR__ . '/../app/Config/AppConfig.php';
 
+require_once __DIR__ . '/../app/Controllers/ChatController.php';
+
 // 5. Inicia a sessão global do PHP de forma limpa e segura
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -111,12 +113,17 @@ $router->get('/contato', [HomeController::class, 'contato']);
 $router->post('/contato/enviar', [HomeController::class, 'enviarContato']);
 
 
-// Mantém o resolve por último
-$router->resolve();
-
 // Rotas institucionais do Rodapé
 $router->get('/politica-de-privacidade', [HomeController::class, 'politicaPrivacidade']);
 $router->get('/termos-de-uso', [HomeController::class, 'termosDeUso']);
+
+$router->get('/chat', [ChatController::class, 'index']);
+// Altere de $router->get para $router->post:
+$router->post('/chat/buscar', [ChatController::class, 'buscarMensagens']);
+
+$router->post('/chat/enviar', [ChatController::class, 'enviar']);
+
+$router->post('/chat/usuarios', [ChatController::class, 'listarUsuarios']);
 
 // Deixe sempre o resolve por último
 $router->resolve();
