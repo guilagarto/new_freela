@@ -214,6 +214,24 @@ public function landingPage(): void {
     }
 
 
+        /**
+     * Renderiza o painel intermediário com os dois botões principais após o login
+     */
+    public function mostrarPainelIntermediario(): void {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Blindagem de segurança: Só acessa se tiver uma sessão iniciada
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: ' . \App\Config\AppConfig::url('/login'));
+            exit;
+        }
+
+        // Renderiza a View correspondente à página da Foto 1
+        // NOTA: Se o arquivo da Foto 1 tiver outro nome (ex: dashboard_unico.php), mude o nome abaixo
+        require_once __DIR__ . '/../Views/home.php';
+    }
 
 
 

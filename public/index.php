@@ -144,7 +144,6 @@ $router->get('/dashboard-unico', [DashboardController::class, 'unicoIndex']);
 // Rota amigável para ler o perfil público do profissional
 $router->get('/profissional/perfil', [ProfessionalController::class, 'perfil']);
 
-// public/index.php
 
 // ROTAS DO CHAT (Garante o casamento de strings do seu Router)
 // =========================================================================
@@ -163,6 +162,10 @@ $router->post('/chat/buscar', [\App\Controllers\ChatController::class, 'buscarMe
 $router->post('/chat/enviar', [\App\Controllers\ChatController::class, 'enviar']);
 
 $router->get('/dashboard-freela', [DashboardController::class, 'freelaIndex']);
+
+
+// Rota para salvar as alterações do perfil do Freelancer
+$router->post('/dashboard-freela/salvar', [DashboardController::class, 'salvarPerfilFreela']);
 
 // Deixe sempre o resolve por último
 $router->resolve();

@@ -210,4 +210,30 @@ let idDestinatarioAtual = destinatarioIdInput.value;
     }
 
     carregarUsuariosContatos();
+
+        // LÓGICA DE NOTIFICAÇÃO DO MENU SUPERIOR
+       // LÓGICA DE NOTIFICAÇÃO DO MENU SUPERIOR (CORRIGIDO)
+    const badgeNotificacao = document.getElementById("badge-notificacao-chat");
+    
+    if (badgeNotificacao) {
+        // Se o usuário JÁ ESTÁ na página do chat, esconde a bolinha na hora
+        if (window.location.pathname.includes('/chat')) {
+            badgeNotificacao.style.display = "none";
+        } else {
+            // Se ele NÃO ESTÁ no chat, roda uma checagem a cada 5 segundos para ver se há mensagens novas no banco
+            setInterval(() => {
+                fetch(`${URL_BASE}/chat/usuarios`, { method: "POST" })
+                .then(response => response.json())
+                .then(usuarios => {
+                    // Se o banco retornar qualquer conversa ativa no histórico, acende a bolinha!
+                    if (Array.isArray(usuarios) && usuarios.length > 0) {
+                        badgeNotificacao.style.display = "inline-block";
+                    }
+                }).catch(err => console.error(err));
+            }, 5000);
+        }
+    }
+
+
+
 });

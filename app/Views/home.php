@@ -32,7 +32,7 @@
             <a href="<?php echo \App\Config\AppConfig::url('/profissionais'); ?>" class="btn-action btn-primary">
                 🔍 Encontrar Profissional
             </a>
-            <a href="<?php echo \App\Config\AppConfig::url('/login'); ?>" class="btn-action btn-secondary" style="background: #ffffff; border: 1px solid #cbd5e1;">
+                        <a href="<?php echo \App\Config\AppConfig::url('/dashboard-freela'); ?>" class="btn-action" style="/* mantenha seus estilos de botão */">
                 💼 Quero Oferecer Serviços
             </a>
         </div>

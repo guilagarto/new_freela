@@ -203,7 +203,14 @@
         <!-- LINKS EXCLUSIVOS PARA USUÁRIO LOGADO                                      -->
         <!-- ========================================================================= -->
         <li><a href="<?php echo \App\Config\AppConfig::url('/profissionais'); ?>" class="nav-link">Buscar Profissionais</a></li>
-        <li><a href="<?php echo \App\Config\AppConfig::url('/chat'); ?>" class="nav-link">Mensagens</a></li>
+        <!-- Procure a linha do link de Mensagens no seu header.php e mude para isto: -->
+<li>
+    <a href="<?php echo \App\Config\AppConfig::url('/chat'); ?>" class="nav-link" style="display: inline-flex; align-items: center; gap: 5px;">
+        Mensagens 
+        <span id="badge-notificacao-chat" style="width: 8px; height: 8px; background-color: #22c55e; border-radius: 50%; display: none; box-shadow: 0 0 8px #22c55e;"></span>
+    </a>
+</li>
+
         
         <!-- INDICADOR VISUAL EXIGIDO: NOME + STATUS LOGADO COM BOLINHA VERDE -->
         <!-- Localize essa linha no seu header.php e mude o href para apontar para a dashboard do freela -->
