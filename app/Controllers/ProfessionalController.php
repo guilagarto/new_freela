@@ -170,4 +170,51 @@ class ProfessionalController {
         exit;
     }
 
+        /**
+     * Renderiza o Perfil Público de um Profissional Específico
+     */
+      /**
+     * Renderiza o Perfil Público de um Profissional Específico
+     */
+    public function perfil(): void {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+
+        if (!$id) {
+            header('Location: ' . \AppConfig\AppConfig::url('/buscar-profissionais'));
+            exit;
+        }
+
+        try {
+            $db = \App\Core\Database::getInstance();
+            
+            // SQL CALIBRADO: Une a tabela users com a tabela professional_profiles pelo user_id
+            $query = "
+                SELECT u.id, u.name, u.email, pp.bio as biografia, pp.category as profissao
+                FROM users u
+                LEFT JOIN professional_profiles pp ON pp.user_id = u.id
+                WHERE u.id = ?
+            ";
+            
+            $stmt = $db->prepare($query);
+            $stmt->execute([$id]);
+            $profissional = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            if (!$profissional) {
+                echo "Profissional não encontrado.";
+                exit;
+            }
+
+            // Carrega a view passando a array preenchida com biografia e profissão reais do banco
+            require_once __DIR__ . '/../Views/perfil_profissional.php';
+        } catch (\PDOException $e) {
+            echo "Erro ao carregar perfil: " . $e->getMessage();
+        }
+    }
+
+
+
 }

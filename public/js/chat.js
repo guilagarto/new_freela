@@ -10,83 +10,115 @@ document.addEventListener("DOMContentLoaded", () => {
     const nomeChatAtivo = document.getElementById("nome-chat-ativo");
 
     let intervaloChat = null;
+   // Captura o ID do profissional vindo do parâmetro da URL (?destinatario_id=4)
+const urlParams = new URLSearchParams(window.location.search);
+const idDaUrl = urlParams.get('destinatario_id');
 
-    // 1. FUNÇÃO PARA CARREGAR OS USUÁRIOS NA BARRA LATERAL DINAMICAMENTE
+// Se houver um ID na URL, força a gravação dele no input escondido do HTML
+if (idDaUrl) {
+    destinatarioIdInput.value = idDaUrl;
+}
+
+// Define quem é o destinatário atual lendo diretamente o input validado
+let idDestinatarioAtual = destinatarioIdInput.value;
+
+
+    // 1. FUNÇÃO PARA CARREGAR OS USUÁRIOS NA BARRA LATERAL (VIA POST)
     function carregarUsuariosContatos() {
-        fetch('./chat/usuarios', {
+        fetch(`${URL_BASE}/chat/usuarios`, {
             method: "POST"
         })
         .then(response => response.json())
         .then(usuarios => {
-            usuariosLista.innerHTML = ""; // Limpa o conteúdo estático antigo
+            usuariosLista.innerHTML = ""; 
 
-            if (usuarios.length === 0) {
-                usuariosLista.innerHTML = `<div style="padding: 15px; color: #999; font-size: 14px;">Nenhum contato encontrado.</div>`;
-                return;
+            let alvoExisteNaLista = false;
+            if (Array.isArray(usuarios) && idDestinatarioAtual) {
+                alvoExisteNaLista = usuarios.some(user => user.id == idDestinatarioAtual);
             }
 
-            usuarios.forEach((user, index) => {
-                const div = document.createElement("div");
-                div.classList.add("usuario-item");
-                div.setAttribute("data-id", user.id);
-                
-                // Estilo base do item da lista
-                div.style.padding = "15px";
-                div.style.borderBottom = "1px solid #f9f9f9";
-                div.style.cursor = "pointer";
-                div.style.fontWeight = "500";
-                div.style.color = "#333";
-                div.style.transition = "background 0.2s";
+            if (Array.isArray(usuarios) && usuarios.length > 0) {
+                usuarios.forEach((user, index) => {
+                    const div = document.createElement("div");
+                    div.classList.add("usuario-item");
+                    div.setAttribute("data-id", user.id);
+                    
+                    div.style.padding = "15px";
+                    div.style.borderBottom = "1px solid #f9f9f9";
+                    div.style.cursor = "pointer";
+                    div.style.fontWeight = "500";
+                    div.style.color = "#333";
 
-                // Se o nome no banco vier em outra coluna, use user.nome ao invés de user.name
-                const nomeUsuario = user.name || user.nome || `Usuário ${user.id}`;
-                div.innerHTML = `👤 ${nomeUsuario}`;
+                    const nomeUsuario = user.name || user.nome || `Usuário ${user.id}`;
+                    div.innerHTML = `👤 ${nomeUsuario}`;
 
-                // Define o primeiro usuário da lista como ativo por padrão no carregamento inicial
-                if (!destinatarioIdInput.value && index === 0) {
-                    div.classList.add("active");
-                    div.style.background = "#eef2f3";
-                    div.style.color = "#007bff";
-                    div.style.fontWeight = "600";
-                    destinatarioIdInput.value = user.id;
-                    nomeChatAtivo.textContent = nomeUsuario;
-                } else if (destinatarioIdInput.value == user.id) {
-                    div.classList.add("active");
-                    div.style.background = "#eef2f3";
-                    div.style.color = "#007bff";
-                    div.style.fontWeight = "600";
-                }
+                    if (idDestinatarioAtual && user.id == idDestinatarioAtual) {
+                        div.classList.add("active");
+                        div.style.background = "#eef2f3";
+                        div.style.color = "#4f46e5";
+                        div.style.fontWeight = "600";
+                        nomeChatAtivo.textContent = nomeUsuario;
+                    } else if (!idDestinatarioAtual && index === 0) {
+                        div.classList.add("active");
+                        div.style.background = "#eef2f3";
+                        div.style.color = "#4f46e5";
+                        div.style.fontWeight = "600";
+                        destinatarioIdInput.value = user.id;
+                        idDestinatarioAtual = user.id;
+                        nomeChatAtivo.textContent = nomeUsuario;
+                    }
 
-                // Evento de clique para trocar de conversa
-                div.addEventListener("click", function() {
-                    document.querySelectorAll(".usuario-item").forEach(i => {
-                        i.classList.remove("active");
-                        i.style.background = "transparent";
-                        i.style.color = "#333";
-                        i.style.fontWeight = "500";
+                    div.addEventListener("click", function() {
+                        document.querySelectorAll(".usuario-item").forEach(i => {
+                            i.classList.remove("active");
+                            i.style.background = "transparent";
+                            i.style.color = "#333";
+                            i.style.fontWeight = "500";
+                        });
+                        
+                        this.classList.add("active");
+                        this.style.background = "#eef2f3";
+                        this.style.color = "#4f46e5";
+                        this.style.fontWeight = "600";
+
+                        destinatarioIdInput.value = this.getAttribute("data-id");
+                        idDestinatarioAtual = this.getAttribute("data-id");
+                        nomeChatAtivo.textContent = nomeUsuario;
+                        
+                        iniciarChat();
                     });
-                    
-                    this.classList.add("active");
-                    this.style.background = "#eef2f3";
-                    this.style.color = "#007bff";
-                    this.style.fontWeight = "600";
 
-                    destinatarioIdInput.value = this.getAttribute("data-id");
-                    nomeChatAtivo.textContent = nomeUsuario;
-                    
-                    iniciarChat();
+                    usuariosLista.appendChild(div);
                 });
+            }
 
-                usuariosLista.appendChild(div);
-            });
+            // Se for um contato inédito, força o card na marra usando o POST invisível
+            if (idDestinatarioAtual && !alvoExisteNaLista) {
+                const divNovo = document.createElement("div");
+                divNovo.classList.add("usuario-item", "active");
+                divNovo.setAttribute("data-id", idDestinatarioAtual);
+                
+                divNovo.style.padding = "15px";
+                divNovo.style.borderBottom = "1px solid #f9f9f9";
+                divNovo.style.cursor = "pointer";
+                divNovo.style.fontWeight = "600";
+                divNovo.style.background = "#eef2f3";
+                divNovo.style.color = "#4f46e5";
+                divNovo.innerHTML = `👤 Nova Conversa (ID: ${idDestinatarioAtual})`;
+                
+                usuariosLista.insertBefore(divNovo, usuariosLista.firstChild);
+                nomeChatAtivo.textContent = "Nova Conversa";
+                destinatarioIdInput.value = idDestinatarioAtual;
+            } else if (!idDestinatarioAtual && (!usuarios || usuarios.length === 0)) {
+                usuariosLista.innerHTML = `<div style="padding: 15px; color: #999; font-size: 14px;">Nenhuma conversa ativa.</div>`;
+            }
 
-            // Após desenhar a lista lateral de usuários, inicia a busca de mensagens
             iniciarChat();
         })
-        .catch(err => console.error("Erro ao carregar lista de contatos:", err));
+        .catch(err => console.error("Erro ao carregar contatos:", err));
     }
 
-    // 2. FUNÇÃO PARA CARREGAR AS MENSAGENS DO BANCO
+    // 2. FUNÇÃO PARA CARREGAR AS MENSAGENS (VIA POST)
     function carregarMensagens() {
         const destinatarioId = destinatarioIdInput.value;
         if (!destinatarioId) return;
@@ -94,18 +126,18 @@ document.addEventListener("DOMContentLoaded", () => {
         const formData = new FormData();
         formData.append("destinatario_id", destinatarioId);
 
-        fetch('./chat/buscar', {
+        fetch(`${URL_BASE}/chat/buscar`, {
             method: "POST",
             body: formData
         })
-            .then(response => response.json())
-            .then(mensagens => {
-                const estavaNoFinal = chatBox.scrollHeight - chatBox.scrollTop <= chatBox.clientHeight + 50;
-                chatBox.innerHTML = "";
+        .then(response => response.json())
+        .then(mensagens => {
+            const estavaNoFinal = chatBox.scrollHeight - chatBox.scrollTop <= chatBox.clientHeight + 50;
+            chatBox.innerHTML = "";
 
+            if (Array.isArray(mensagens)) {
                 mensagens.forEach(msg => {
                     const div = document.createElement("div");
-                    
                     div.style.padding = "10px 14px";
                     div.style.borderRadius = "12px";
                     div.style.maxWidth = "70%";
@@ -115,7 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     if (msg.remetente_id == remetenteId) {
                         div.style.alignSelf = "flex-end";
-                        div.style.background = "#007bff";
+                        div.style.background = "#4f46e5";
                         div.style.color = "#fff";
                         div.style.borderRadius = "12px 12px 0 12px";
                     } else {
@@ -128,12 +160,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     div.textContent = msg.mensagem;
                     chatBox.appendChild(div);
                 });
+            }
 
-                if (estavaNoFinal) {
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                }
-            })
-            .catch(err => console.error("Erro ao carregar mensagens:", err));
+            if (estavaNoFinal) {
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        })
+        .catch(err => console.error("Erro ao buscar histórico:", err));
     }
 
     // 3. ENVIAR NOVA MENSAGEM VIA AJAX
@@ -151,7 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         mensagemInput.value = "";
 
-        fetch('./chat/enviar', {
+        fetch(`${URL_BASE}/chat/enviar`, {
             method: "POST",
             body: formData
         })
@@ -164,13 +197,11 @@ document.addEventListener("DOMContentLoaded", () => {
         .catch(err => console.error("Erro ao enviar mensagem:", err));
     });
 
-    // 4. GERENCIA O INTERVALO DE TEMPO REAL
     function iniciarChat() {
         if (intervaloChat) clearInterval(intervaloChat);
         carregarMensagens();
-        intervaloChat = setInterval(carregarMensagens, 2000); // Polling a cada 2s
+        intervaloChat = setInterval(carregarMensagens, 2000);
     }
 
-    // Inicialização do Chat: Busca os usuários primeiro
     carregarUsuariosContatos();
 });

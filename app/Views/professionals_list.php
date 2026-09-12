@@ -209,7 +209,9 @@ document.addEventListener("DOMContentLoaded", function() {
                                 <p style="margin: 0 0 15px 0; font-size: 13px; color: #475569; line-height: 1.4;">${biografia}</p>
                             </div>
                             <div>
-                                <a href="<?php echo \App\Config\AppConfig::url('/vagas/publicar'); ?>" class="btn-action btn-primary" style="width: 100%; text-align: center; font-size: 13px; padding: 8px; font-weight: bold; display: block; border-radius: 6px;">📥 Contratar Profissional</a>
+                                <a href="./profissional/perfil?id=${prof.user_id || prof.id}" class="btn-action btn-primary" style="width: 100%; text-align: center; font-size: 13px; padding: 8px; font-weight: bold; display: block; border-radius: 6px;">
+                                    🤝 Contratar Profissional
+                                </a>
                             </div>
                         </div>
                     `;

@@ -194,12 +194,47 @@
         <button class="menu-toggle" id="mobile-menu-btn" aria-label="Abrir menu">☰</button>
         
         <!-- Lista de Links -->
-        <ul class="nav-menu" id="nav-links-container">
-            <li><a href="<?php echo \App\Config\AppConfig::url('/'); ?>" class="nav-link">Home</a></li>
-            <li><a href="<?php echo \App\Config\AppConfig::url('/profissionais'); ?>" class="nav-link">Buscar Profissionais</a></li>
-            <li><a href="<?php echo \App\Config\AppConfig::url('/blog'); ?>" class="nav-link">Blog</a></li>
-            <li><a href="<?php echo \App\Config\AppConfig::url('/contato'); ?>" class="nav-link">Contato</a></li>
-        </ul>
+        <ul id="nav-links-container" class="nav-menu">
+    <!-- Link público padrão -->
+    <li><a href="<?php echo \App\Config\AppConfig::url('/'); ?>" class="nav-link">Home</a></li>
+
+    <?php if (isset($_SESSION['user_id'])): ?>
+        <!-- ========================================================================= -->
+        <!-- LINKS EXCLUSIVOS PARA USUÁRIO LOGADO                                      -->
+        <!-- ========================================================================= -->
+        <li><a href="<?php echo \App\Config\AppConfig::url('/profissionais'); ?>" class="nav-link">Buscar Profissionais</a></li>
+        <li><a href="<?php echo \App\Config\AppConfig::url('/chat'); ?>" class="nav-link">Mensagens</a></li>
+        
+        <!-- INDICADOR VISUAL EXIGIDO: NOME + STATUS LOGADO COM BOLINHA VERDE -->
+        <!-- Localize essa linha no seu header.php e mude o href para apontar para a dashboard do freela -->
+        <li style="display: flex; align-items: center; justify-content: center;">
+            <a href="<?php echo \App\Config\AppConfig::url('/dashboard-freela'); ?>" class="nav-link" style="color: #4f46e5; font-weight: bold; display: inline-flex; align-items: center; gap: 6px;">
+                <span style="width: 8px; height: 8px; background-color: #22c55e; border-radius: 50%; display: inline-block; box-shadow: 0 0 8px #22c55e;"></span>
+                👤 <?php echo explode(' ', $_SESSION['user_name'] ?? 'Usuário')[0]; ?> (Logado)
+            </a>
+        </li>
+
+        
+        <!-- OPÇÃO COMPLETA DE SAIR (LOGOUT) -->
+        <li>
+            <a href="<?php echo \App\Config\AppConfig::url('/sair'); ?>" class="nav-link" style="color: #dc3545; font-weight: 600;">
+                🚪 Sair
+            </a>
+        </li>
+        
+    <?php else: ?>
+        <!-- ========================================================================= -->
+        <!-- LINKS EXIBIDOS APENAS SE ESTIVER DESLOGADO (VISITANTE NA LANDING PAGE)     -->
+        <!-- ========================================================================= -->
+        <li><a href="<?php echo \App\Config\AppConfig::url('/login'); ?>" class="nav-link">Entrar</a></li>
+        <li>
+            <a href="<?php echo \App\Config\AppConfig::url('/cadastro'); ?>" class="nav-link btn-cadastro-menu" style="background: #4f46e5; color: #ffffff; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: bold;">
+                Cadastrar
+            </a>
+        </li>
+    <?php endif; ?>
+</ul>
+
     </nav>
 </header>
 

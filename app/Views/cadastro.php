@@ -46,14 +46,14 @@
                 <input type="password" name="password" id="password" class="form-control" placeholder="Mínimo 6 caracteres" required>
             </div>
 
-            <div class="form-group">
+         <!--  <div class="form-group">
                 <label for="tipo_cadastro">Qual seu objetivo principal?</label>
                 <select name="tipo_cadastro" id="tipo_cadastro" class="form-control" required>
                     <option value="cliente" selected>Contratar Freelancers (Postar Vagas)</option>
                     <option value="freelancer">Trabalhar como Freelancer (Buscar Vagas)</option>
                 </select>
             </div>
-
+        -->
             <button type="submit" class="btn-action btn-primary" style="width: 100%;">Finalizar Cadastro</button>
         </form>
 

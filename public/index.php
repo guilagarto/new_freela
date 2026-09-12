@@ -20,9 +20,27 @@ require_once __DIR__ . '/../app/Config/AppConfig.php';
 require_once __DIR__ . '/../app/Controllers/ChatController.php';
 
 // 5. Inicia a sessão global do PHP de forma limpa e segura
+// =========================================================================
+// FILTRO DE BLINDAGEM GLOBAL (SEGURANÇA DO TALENTOHUB)
+// =========================================================================
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+// Captura a URL que o usuário está tentando acessar limpa
+$url_atual = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+// Remove a subpasta '/new-freela' para bater com o padrão de rotas limpas do seu roteador
+$url_atual = str_replace('/new-freela', '', $url_atual);
+
+// Páginas que são PERMITIDAS acessar sem login (Landing Page, Telas de Login e Cadastro)
+$rotas_publicas = ['/', '/login', '/cadastro', '/cadastrar', '/autenticar'];
+
+// Se a rota não for pública e o usuário NÃO estiver logado, bloqueia na hora e manda logar
+if (!in_array($url_atual, $rotas_publicas) && !isset($_SESSION['user_id'])) {
+    header('Location: ' . \App\Config\AppConfig::url('/login'));
+    exit;
+}
+
 
 // 6. Importa os Namespaces das classes que serão utilizadas no roteamento
 use App\Core\Router;
@@ -44,11 +62,11 @@ $router->get('/login', [AuthController::class, 'mostrarLogin']);
 $router->post('/login', [AuthController::class, 'autenticarUsuario']);
 $router->get('/cadastrar', [AuthController::class, 'mostrarCadastro']);
 $router->post('/cadastrar', [AuthController::class, 'cadastrarUsuario']);
-$router->get('/sair', [AuthController::class, 'sair']);
+$router->get('/sair', [AuthController::class, 'logout']);
 
 // 🚀 ROTAS DE PROCESSAMENTO DE FORMULÁRIOS (MÉTODO POST)
 $router->post('/login', [AuthController::class, 'autenticarUsuario']);
-$router->post('/cadastrar', [AuthController::class, 'cadastrarUsuario']);
+
 
 
 // 🚀 2. NOVAS ROTAS DO DASHBOARD E ALTERNÂNCIA
@@ -117,13 +135,34 @@ $router->post('/contato/enviar', [HomeController::class, 'enviarContato']);
 $router->get('/politica-de-privacidade', [HomeController::class, 'politicaPrivacidade']);
 $router->get('/termos-de-uso', [HomeController::class, 'termosDeUso']);
 
-$router->get('/chat', [ChatController::class, 'index']);
-// Altere de $router->get para $router->post:
-$router->post('/chat/buscar', [ChatController::class, 'buscarMensagens']);
 
-$router->post('/chat/enviar', [ChatController::class, 'enviar']);
+// Rota para abrir o painel unificado após o login com sucesso
+$router->get('/dashboard-unico', [DashboardController::class, 'unicoIndex']);
 
-$router->post('/chat/usuarios', [ChatController::class, 'listarUsuarios']);
+// public/index.php
+
+// Rota amigável para ler o perfil público do profissional
+$router->get('/profissional/perfil', [ProfessionalController::class, 'perfil']);
+
+// public/index.php
+
+// ROTAS DO CHAT (Garante o casamento de strings do seu Router)
+// =========================================================================
+// ROTAS DO CHAT (Garante o casamento de strings do seu SRouter)
+// =========================================================================
+
+// Rota intermediária que prepara a conversa na sessão e limpa a URL
+$router->get('/chat/iniciar', [\App\Controllers\ChatController::class, 'prepararConversa']);
+
+// Rota principal visual do chat (Sempre limpa e estável)
+$router->get('/chat', [\App\Controllers\ChatController::class, 'index']);
+
+// Rotas de segundo plano AJAX (Ficam ocultas no corpo da requisição)
+$router->post('/chat/usuarios', [\App\Controllers\ChatController::class, 'listarUsuarios']);
+$router->post('/chat/buscar', [\App\Controllers\ChatController::class, 'buscarMensagens']);
+$router->post('/chat/enviar', [\App\Controllers\ChatController::class, 'enviar']);
+
+$router->get('/dashboard-freela', [DashboardController::class, 'freelaIndex']);
 
 // Deixe sempre o resolve por último
 $router->resolve();

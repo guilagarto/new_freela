@@ -119,4 +119,51 @@ class DashboardController {
         exit;
     }
 
+        /* Abre a tela da Dashboard Unificada
+    
+    public function unicoIndex(): void {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Bloqueio de segurança básico
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: ' . \AppConfig\AppConfig::url('/login'));
+            exit;
+        }
+
+        // Renderiza o arquivo visual que você já possui na pasta Views
+        require_once __DIR__ . '/../Views/dashboard_unico.php';
+    }
+
+        /**
+     * Renderiza o Painel do Freelancer buscando os dados reais do banco
+     */
+    public function freelaIndex(): void {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Bloqueio de segurança padrão do TalentoHub
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: ' . \App\Config\AppConfig::url('/login'));
+            exit;
+        }
+
+        try {
+            $db = \App\Core\Database::getInstance();
+            
+            // Busca os dados do usuário na tabela principal para preencher os inputs da tela
+            $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
+            $stmt->execute([$_SESSION['user_id']]);
+            $usuario = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            // Carrega o arquivo visual tendo a variável $usuario disponível e preenchida
+            require_once __DIR__ . '/../Views/dashboard_freela.php';
+        } catch (\PDOException $e) {
+            echo "Erro ao carregar dados do painel: " . $e->getMessage();
+        }
+    }
+
+
 }
