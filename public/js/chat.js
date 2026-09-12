@@ -8,8 +8,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const destinatarioIdInput = document.getElementById("destinatario_id");
     const usuariosLista = document.querySelector(".usuarios-lista");
     const nomeChatAtivo = document.getElementById("nome-chat-ativo");
+const URL_BASE = window.location.hostname === 'localhost' ? '/new-freela' : '';
 
-    let intervaloChat = null;
    // Captura o ID do profissional vindo do parâmetro da URL (?destinatario_id=4)
 const urlParams = new URLSearchParams(window.location.search);
 const idDaUrl = urlParams.get('destinatario_id');
