@@ -1,7 +1,7 @@
 <?php
 // app/Views/chat.php
 
-// Garante que a sessão esteja ativa para ler as credenciais
+// Garante que a sessão esteja ativa para ler as credenciais do usuário
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -12,27 +12,79 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+// Inclui o cabeçalho padrão do seu projeto (TalentoHub)
 require_once __DIR__ . '/partials/header.php'; 
 
 $usuario_logado_id = $_SESSION['user_id'];
 
-
-// AJUSTE CRUCIAL: Captura a URL base correta do seu projeto (Ex: /new-freela)
+// Captura a URL base correta do seu projeto de forma dinâmica (Ex: /new-freela)
 $base_url = str_replace('/public', '', dirname($_SERVER['SCRIPT_NAME']));
 $base_url = rtrim($base_url, '/');
 ?>
 
 <script>
-    // Injeta a rota absoluta global para o arquivo chat.js usar nos caminhos de fetch
+    // Injeta a rota absoluta global para o arquivo chat.js usar nas requisições assíncronas
     window.CHAT_API_URL = "<?php echo $base_url; ?>";
 </script>
 
+<style>
+    /* ESTILIZAÇÃO PADRÃO DO CHAT (WEB / COMPUTADOR) */
+    .chat-wrapper {
+        display: flex; 
+        background: #ffffff; 
+        border: 1px solid #ddd; 
+        border-radius: 12px; 
+        overflow: hidden; 
+        height: 550px; 
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
+        box-sizing: border-box;
+    }
+    .chat-sidebar {
+        width: 30%; 
+        border-right: 1px solid #eee; 
+        background: #fcfcfc; 
+        display: flex; 
+        flex-direction: column; 
+        box-sizing: border-box;
+    }
+    .chat-main {
+        width: 70%; 
+        display: flex; 
+        flex-direction: column; 
+        background: #f7f9fa; 
+        box-sizing: border-box;
+    }
+
+    /* ========================================================================= */
+    /* CORREÇÃO DE RESPONSIVIDADE EXCLUSIVA PARA CELULARES (MOBILE)              */
+    /* ========================================================================= */
+    @media (max-width: 768px) {
+        .chat-wrapper {
+            flex-direction: column !important;
+            height: calc(100vh - 140px) !important; /* Estica o chat para caber na tela do celular */
+        }
+        .chat-sidebar {
+            width: 100% !important;
+            height: 160px !important; /* Lista de contatos compacta rolável no topo */
+            border-right: none !important;
+            border-bottom: 1px solid #eee !important;
+        }
+        .chat-main {
+            width: 100% !important;
+            flex: 1 !important;
+        }
+        #chat-box {
+            padding: 12px !important;
+        }
+    }
+</style>
+
 <div class="container-chat-principal" style="max-width: 1100px; margin: 50px auto; padding: 0 15px; font-family: 'Segoe UI', sans-serif; box-sizing: border-box;">
     
-    <div class="chat-wrapper" style="display: flex; background: #ffffff; border: 1px solid #ddd; border-radius: 12px; overflow: hidden; height: 550px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); box-sizing: border-box;">
+    <div class="chat-wrapper">
         
         <!-- BARRA LATERAL: Lista de Conversas Dinâmicas -->
-        <div class="chat-sidebar" style="width: 30%; border-right: 1px solid #eee; background: #fcfcfc; display: flex; flex-direction: column; box-sizing: border-box;">
+        <div class="chat-sidebar">
             <div style="padding: 15px; border-bottom: 1px solid #eee; font-weight: bold; color: #333; background: #fff; font-size: 15px;">
                 Conversas
             </div>
@@ -42,7 +94,7 @@ $base_url = rtrim($base_url, '/');
         </div>
 
         <!-- ÁREA PRINCIPAL: Janela de Mensagens -->
-        <div class="chat-main" style="width: 70%; display: flex; flex-direction: column; background: #f7f9fa; box-sizing: border-box;">
+        <div class="chat-main">
             
             <!-- Cabeçalho do Chat Ativo -->
             <div style="padding: 15px; background: #fff; border-bottom: 1px solid #eee; font-weight: 600; color: #444; font-size: 15px;">
@@ -59,12 +111,9 @@ $base_url = rtrim($base_url, '/');
                 <!-- ID do Remetente ativo na sessão -->
                 <input type="hidden" id="remetente_id" value="<?php echo (int)$usuario_logado_id; ?>">
                 
-                <!-- ID do Destinatário atual (atualizado dinamicamente pelo clique ou pela URL) -->
-                <!-- Procure por essa linha dentro do formulário id="chat-form" no seu chat.php e mude para: -->
-                <!-- Localize essa linha dentro do <form id="chat-form"> no seu chat.php e mude para: -->
-<input type="hidden" id="destinatario_id" value="<?php echo isset($destinatario_id) ? (int)$destinatario_id : ''; ?>">
-
-
+                <!-- ID do Destinatário atual (Lê dinamicamente o parâmetro ?destinatario_id vindo do botão do perfil) -->
+                <input type="hidden" id="destinatario_id" value="<?php echo isset($_GET['destinatario_id']) ? (int)$_GET['destinatario_id'] : ''; ?>">
+                
                 <input type="text" id="mensagem-input" placeholder="Digite sua mensagem aqui..." autocomplete="off" required 
                        style="flex: 1; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; outline: none; font-size: 14px; background: #fff; color: #333;">
                 
@@ -77,9 +126,10 @@ $base_url = rtrim($base_url, '/');
     </div>
 </div>
 
-<!-- Carrega a inteligência do chat com caminho relativo estável -->
+<!-- Carrega a inteligência do chat com caminho estável -->
 <script src="js/chat.js"></script>
 
 <?php 
+// Inclui o rodapé padrão do seu projeto (TalentoHub)
 require_once __DIR__ . '/partials/footer.php'; 
 ?>
