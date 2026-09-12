@@ -24,6 +24,7 @@ let idDestinatarioAtual = destinatarioIdInput.value;
 
 
     // 1. FUNÇÃO PARA CARREGAR OS USUÁRIOS NA BARRA LATERAL (VIA POST)
+       // 1. FUNÇÃO PARA CARREGAR OS USUÁRIOS NA BARRA LATERAL (BLINDADA PARA CONTATOS NOVOS)
     function carregarUsuariosContatos() {
         fetch(`${URL_BASE}/chat/usuarios`, {
             method: "POST"
@@ -33,10 +34,11 @@ let idDestinatarioAtual = destinatarioIdInput.value;
             usuariosLista.innerHTML = ""; 
 
             let alvoExisteNaLista = false;
-            if (Array.isArray(usuarios) && idDestinatarioAtual) {
-                alvoExisteNaLista = usuarios.some(user => user.id == idDestinatarioAtual);
+            if (Array.isArray(usuarios) && idDaUrl) {
+                alvoExisteNaLista = usuarios.some(user => user.id == idDaUrl);
             }
 
+            // Renderiza as conversas que já existem no banco
             if (Array.isArray(usuarios) && usuarios.length > 0) {
                 usuarios.forEach((user, index) => {
                     const div = document.createElement("div");
@@ -52,19 +54,19 @@ let idDestinatarioAtual = destinatarioIdInput.value;
                     const nomeUsuario = user.name || user.nome || `Usuário ${user.id}`;
                     div.innerHTML = `👤 ${nomeUsuario}`;
 
-                    if (idDestinatarioAtual && user.id == idDestinatarioAtual) {
+                    // Seleciona se vier da URL ou se for o primeiro
+                    if (idDaUrl && user.id == idDaUrl) {
                         div.classList.add("active");
                         div.style.background = "#eef2f3";
                         div.style.color = "#4f46e5";
                         div.style.fontWeight = "600";
                         nomeChatAtivo.textContent = nomeUsuario;
-                    } else if (!idDestinatarioAtual && index === 0) {
+                    } else if (!idDaUrl && index === 0) {
                         div.classList.add("active");
                         div.style.background = "#eef2f3";
                         div.style.color = "#4f46e5";
                         div.style.fontWeight = "600";
                         destinatarioIdInput.value = user.id;
-                        idDestinatarioAtual = user.id;
                         nomeChatAtivo.textContent = nomeUsuario;
                     }
 
@@ -82,7 +84,6 @@ let idDestinatarioAtual = destinatarioIdInput.value;
                         this.style.fontWeight = "600";
 
                         destinatarioIdInput.value = this.getAttribute("data-id");
-                        idDestinatarioAtual = this.getAttribute("data-id");
                         nomeChatAtivo.textContent = nomeUsuario;
                         
                         iniciarChat();
@@ -92,11 +93,13 @@ let idDestinatarioAtual = destinatarioIdInput.value;
                 });
             }
 
-            // Se for um contato inédito, força o card na marra usando o POST invisível
-            if (idDestinatarioAtual && !alvoExisteNaLista) {
+            // =========================================================================
+            // COLOQUE ESTA TRAVA AQUI: Se for um contato inédito, força o card no topo!
+            // =========================================================================
+            if (idDaUrl && !alvoExisteNaLista) {
                 const divNovo = document.createElement("div");
                 divNovo.classList.add("usuario-item", "active");
-                divNovo.setAttribute("data-id", idDestinatarioAtual);
+                divNovo.setAttribute("data-id", idDaUrl);
                 
                 divNovo.style.padding = "15px";
                 divNovo.style.borderBottom = "1px solid #f9f9f9";
@@ -104,12 +107,14 @@ let idDestinatarioAtual = destinatarioIdInput.value;
                 divNovo.style.fontWeight = "600";
                 divNovo.style.background = "#eef2f3";
                 divNovo.style.color = "#4f46e5";
-                divNovo.innerHTML = `👤 Nova Conversa (ID: ${idDestinatarioAtual})`;
+                divNovo.innerHTML = `👤 Nova Conversa (ID: ${idDaUrl})`;
                 
                 usuariosLista.insertBefore(divNovo, usuariosLista.firstChild);
                 nomeChatAtivo.textContent = "Nova Conversa";
-                destinatarioIdInput.value = idDestinatarioAtual;
-            } else if (!idDestinatarioAtual && (!usuarios || usuarios.length === 0)) {
+                
+                // CRUCIAL: Força o input do HTML a receber esse ID para o POST enviar certo!
+                destinatarioIdInput.value = idDaUrl; 
+            } else if (!idDaUrl && (!usuarios || usuarios.length === 0)) {
                 usuariosLista.innerHTML = `<div style="padding: 15px; color: #999; font-size: 14px;">Nenhuma conversa ativa.</div>`;
             }
 
@@ -117,6 +122,7 @@ let idDestinatarioAtual = destinatarioIdInput.value;
         })
         .catch(err => console.error("Erro ao carregar contatos:", err));
     }
+
 
     // 2. FUNÇÃO PARA CARREGAR AS MENSAGENS (VIA POST)
     function carregarMensagens() {
