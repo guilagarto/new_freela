@@ -8,23 +8,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const destinatarioIdInput = document.getElementById("destinatario_id");
     const usuariosLista = document.querySelector(".usuarios-lista");
     const nomeChatAtivo = document.getElementById("nome-chat-ativo");
-const URL_BASE = window.location.hostname === 'localhost' ? '/new-freela' : '';
 
-   // Captura o ID do profissional vindo do parâmetro da URL (?destinatario_id=4)
-const urlParams = new URLSearchParams(window.location.search);
-const idDaUrl = urlParams.get('destinatario_id');
+    let intervaloChat = null;
+    const URL_BASE = window.location.hostname === 'localhost' ? '/new-freela' : '';
 
-// Se houver um ID na URL, força a gravação dele no input escondido do HTML
-if (idDaUrl) {
-    destinatarioIdInput.value = idDaUrl;
-}
+    // Captura o ID caso ele tenha vindo como parâmetro na URL (?destinatario_id=X)
+    const urlParams = new URLSearchParams(window.location.search);
+    const idDaUrl = urlParams.get('destinatario_id');
+    if (idDaUrl) {
+        destinatarioIdInput.value = idDaUrl;
+    }
 
-// Define quem é o destinatário atual lendo diretamente o input validado
-let idDestinatarioAtual = destinatarioIdInput.value;
+    let idDestinatarioAtual = destinatarioIdInput.value;
 
-
-    // 1. FUNÇÃO PARA CARREGAR OS USUÁRIOS NA BARRA LATERAL (VIA POST)
-       // 1. FUNÇÃO PARA CARREGAR OS USUÁRIOS NA BARRA LATERAL (BLINDADA PARA CONTATOS NOVOS)
+    // 1. FUNÇÃO PARA CARREGAR OS USUÁRIOS NA BARRA LATERAL
     function carregarUsuariosContatos() {
         fetch(`${URL_BASE}/chat/usuarios`, {
             method: "POST"
@@ -34,11 +31,10 @@ let idDestinatarioAtual = destinatarioIdInput.value;
             usuariosLista.innerHTML = ""; 
 
             let alvoExisteNaLista = false;
-            if (Array.isArray(usuarios) && idDaUrl) {
-                alvoExisteNaLista = usuarios.some(user => user.id == idDaUrl);
+            if (Array.isArray(usuarios) && idDestinatarioAtual) {
+                alvoExisteNaLista = usuarios.some(user => user.id == idDestinatarioAtual);
             }
 
-            // Renderiza as conversas que já existem no banco
             if (Array.isArray(usuarios) && usuarios.length > 0) {
                 usuarios.forEach((user, index) => {
                     const div = document.createElement("div");
@@ -54,19 +50,20 @@ let idDestinatarioAtual = destinatarioIdInput.value;
                     const nomeUsuario = user.name || user.nome || `Usuário ${user.id}`;
                     div.innerHTML = `👤 ${nomeUsuario}`;
 
-                    // Seleciona se vier da URL ou se for o primeiro
-                    if (idDaUrl && user.id == idDaUrl) {
+                    // CORREÇÃO MESTRE: Se a URL estiver limpa, o primeiro contato da lista vira o chat ativo automaticamente
+                    if (idDestinatarioAtual && user.id == idDestinatarioAtual) {
                         div.classList.add("active");
                         div.style.background = "#eef2f3";
                         div.style.color = "#4f46e5";
                         div.style.fontWeight = "600";
                         nomeChatAtivo.textContent = nomeUsuario;
-                    } else if (!idDaUrl && index === 0) {
+                    } else if (!idDestinatarioAtual && index === 0) {
                         div.classList.add("active");
                         div.style.background = "#eef2f3";
                         div.style.color = "#4f46e5";
                         div.style.fontWeight = "600";
                         destinatarioIdInput.value = user.id;
+                        idDestinatarioAtual = user.id; // Alimenta a execução automática imediatamente
                         nomeChatAtivo.textContent = nomeUsuario;
                     }
 
@@ -84,6 +81,7 @@ let idDestinatarioAtual = destinatarioIdInput.value;
                         this.style.fontWeight = "600";
 
                         destinatarioIdInput.value = this.getAttribute("data-id");
+                        idDestinatarioAtual = this.getAttribute("data-id");
                         nomeChatAtivo.textContent = nomeUsuario;
                         
                         iniciarChat();
@@ -93,13 +91,11 @@ let idDestinatarioAtual = destinatarioIdInput.value;
                 });
             }
 
-            // =========================================================================
-            // COLOQUE ESTA TRAVA AQUI: Se for um contato inédito, força o card no topo!
-            // =========================================================================
-            if (idDaUrl && !alvoExisteNaLista) {
+            // Se for um contato inédito vindo pelo clique de contratação externa, força o card provisório
+            if (idDestinatarioAtual && !alvoExisteNaLista) {
                 const divNovo = document.createElement("div");
                 divNovo.classList.add("usuario-item", "active");
-                divNovo.setAttribute("data-id", idDaUrl);
+                divNovo.setAttribute("data-id", idDestinatarioAtual);
                 
                 divNovo.style.padding = "15px";
                 divNovo.style.borderBottom = "1px solid #f9f9f9";
@@ -107,14 +103,12 @@ let idDestinatarioAtual = destinatarioIdInput.value;
                 divNovo.style.fontWeight = "600";
                 divNovo.style.background = "#eef2f3";
                 divNovo.style.color = "#4f46e5";
-                divNovo.innerHTML = `👤 Nova Conversa (ID: ${idDaUrl})`;
+                divNovo.innerHTML = `👤 Nova Conversa (ID: ${idDestinatarioAtual})`;
                 
                 usuariosLista.insertBefore(divNovo, usuariosLista.firstChild);
                 nomeChatAtivo.textContent = "Nova Conversa";
-                
-                // CRUCIAL: Força o input do HTML a receber esse ID para o POST enviar certo!
-                destinatarioIdInput.value = idDaUrl; 
-            } else if (!idDaUrl && (!usuarios || usuarios.length === 0)) {
+                destinatarioIdInput.value = idDestinatarioAtual;
+            } else if (!idDestinatarioAtual && (!usuarios || usuarios.length === 0)) {
                 usuariosLista.innerHTML = `<div style="padding: 15px; color: #999; font-size: 14px;">Nenhuma conversa ativa.</div>`;
             }
 
@@ -123,10 +117,10 @@ let idDestinatarioAtual = destinatarioIdInput.value;
         .catch(err => console.error("Erro ao carregar contatos:", err));
     }
 
-
-    // 2. FUNÇÃO PARA CARREGAR AS MENSAGENS (VIA POST)
+    // 2. FUNÇÃO PARA CARREGAR AS MENSAGENS (BUSCA REATALIMENTADA)
     function carregarMensagens() {
-        const destinatarioId = destinatarioIdInput.value;
+        // Atualiza a variável antes do fetch para garantir que leia a seleção atual da tela
+        const destinatarioId = destinatarioIdInput.value || idDestinatarioAtual;
         if (!destinatarioId) return;
 
         const formData = new FormData();
@@ -179,7 +173,7 @@ let idDestinatarioAtual = destinatarioIdInput.value;
     chatForm.addEventListener("submit", (e) => {
         e.preventDefault();
         
-        const destinatarioId = destinatarioIdInput.value;
+        const destinatarioId = destinatarioIdInput.value || idDestinatarioAtual;
         const textoMensagem = mensagemInput.value.trim();
 
         if (!textoMensagem || !destinatarioId) return;
@@ -210,30 +204,4 @@ let idDestinatarioAtual = destinatarioIdInput.value;
     }
 
     carregarUsuariosContatos();
-
-        // LÓGICA DE NOTIFICAÇÃO DO MENU SUPERIOR
-       // LÓGICA DE NOTIFICAÇÃO DO MENU SUPERIOR (CORRIGIDO)
-    const badgeNotificacao = document.getElementById("badge-notificacao-chat");
-    
-    if (badgeNotificacao) {
-        // Se o usuário JÁ ESTÁ na página do chat, esconde a bolinha na hora
-        if (window.location.pathname.includes('/chat')) {
-            badgeNotificacao.style.display = "none";
-        } else {
-            // Se ele NÃO ESTÁ no chat, roda uma checagem a cada 5 segundos para ver se há mensagens novas no banco
-            setInterval(() => {
-                fetch(`${URL_BASE}/chat/usuarios`, { method: "POST" })
-                .then(response => response.json())
-                .then(usuarios => {
-                    // Se o banco retornar qualquer conversa ativa no histórico, acende a bolinha!
-                    if (Array.isArray(usuarios) && usuarios.length > 0) {
-                        badgeNotificacao.style.display = "inline-block";
-                    }
-                }).catch(err => console.error(err));
-            }, 5000);
-        }
-    }
-
-
-
 });
