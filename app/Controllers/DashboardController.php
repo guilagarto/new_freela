@@ -139,12 +139,14 @@ class DashboardController {
         /**
      * Renderiza o Painel do Freelancer buscando os dados reais do banco
      */
+    /**
+     * Renderiza o Painel do Freelancer buscando dados de 'users' e 'professional_profiles'
+     */
     public function freelaIndex(): void {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
 
-        // Bloqueio de segurança padrão do TalentoHub
         if (!isset($_SESSION['user_id'])) {
             header('Location: ' . \App\Config\AppConfig::url('/login'));
             exit;
@@ -152,16 +154,76 @@ class DashboardController {
 
         try {
             $db = \App\Core\Database::getInstance();
+            $userId = $_SESSION['user_id'];
             
-            // Busca os dados do usuário na tabela principal para preencher os inputs da tela
-            $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
-            $stmt->execute([$_SESSION['user_id']]);
-            $usuario = $stmt->fetch(\PDO::FETCH_ASSOC);
+            // 1. Busca os dados principais da conta
+            $stmtUser = $db->prepare("SELECT * FROM users WHERE id = ?");
+            $stmtUser->execute([$userId]);
+            $usuario = $stmtUser->fetch(\PDO::FETCH_ASSOC);
 
-            // Carrega o arquivo visual tendo a variável $usuario disponível e preenchida
+            // 2. Busca os dados profissionais do perfil do freelancer
+            $stmtProfile = $db->prepare("SELECT * FROM professional_profiles WHERE user_id = ?");
+            $stmtProfile->execute([$userId]);
+            $perfil = $stmtProfile->fetch(\PDO::FETCH_ASSOC) ?: []; // Array vazio caso seja o primeiro acesso
+
+            // Renderiza o arquivo visual passando as duas variáveis preenchidas
             require_once __DIR__ . '/../Views/dashboard_freela.php';
         } catch (\PDOException $e) {
             echo "Erro ao carregar dados do painel: " . $e->getMessage();
+        }
+    }
+
+    public function salvarPerfilFreela(): void {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_SESSION['user_id'])) {
+            header('Location: ' . \App\Config\AppConfig::url('/login'));
+            exit;
+        }
+
+        $userId = $_SESSION['user_id'];
+        
+        // Captura e limpa os campos enviados pelo formulário HTML
+        $name = filter_input(INPUT_POST, 'name', FILTER_DEFAULT);
+        $category = filter_input(INPUT_POST, 'category', FILTER_DEFAULT);
+        $bio = filter_input(INPUT_POST, 'bio', FILTER_DEFAULT);
+        $price = filter_input(INPUT_POST, 'price_per_hour', FILTER_VALIDATE_FLOAT);
+        $phone = filter_input(INPUT_POST, 'phone', FILTER_DEFAULT);
+        $portfolio = filter_input(INPUT_POST, 'portfolio_text', FILTER_DEFAULT);
+
+        try {
+            $db = \App\Core\Database::getInstance();
+            
+            // 1. Atualiza o nome principal na tabela 'users'
+            $stmtUser = $db->prepare("UPDATE users SET name = ? WHERE id = ?");
+            $stmtUser->execute([$name, $userId]);
+            $_SESSION['user_name'] = $name; // Atualiza o nome no menu superior na hora
+
+            // 2. Verifica se o perfil profissional já existe no banco
+            $stmtCheck = $db->prepare("SELECT id FROM professional_profiles WHERE user_id = ?");
+            $stmtCheck->execute([$userId]);
+            $existe = $stmtCheck->fetch();
+
+            if ($existe) {
+                // Se já existe, faz um UPDATE
+                $query = "UPDATE professional_profiles SET category = ?, bio = ?, price_per_hour = ?, phone = ?, portfolio_text = ? WHERE user_id = ?";
+                $stmtProfile = $db->prepare($query);
+                $stmtProfile->execute([$category, $bio, $price, $phone, $portfolio, $userId]);
+            } else {
+                // Se é a primeira vez, faz um INSERT
+                $query = "INSERT INTO professional_profiles (user_id, category, bio, price_per_hour, phone, portfolio_text) VALUES (?, ?, ?, ?, ?, ?)";
+                $stmtProfile = $db->prepare($query);
+                $stmtProfile->execute([$userId, $category, $bio, $price, $phone, $portfolio]);
+            }
+
+            $_SESSION['sucesso_painel'] = "Perfil atualizado com sucesso!";
+            header('Location: ' . \App\Config\AppConfig::url('/dashboard-freela'));
+            exit;
+        } catch (\PDOException $e) {
+            echo "Erro ao salvar perfil: " . $e->getMessage();
+            exit;
         }
     }
 
