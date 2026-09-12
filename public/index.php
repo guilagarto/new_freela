@@ -35,6 +35,8 @@ $url_atual = str_replace('/new-freela', '', $url_atual);
 // Páginas que são PERMITIDAS acessar sem login (Landing Page, Telas de Login e Cadastro)
 $rotas_publicas = ['/', '/login', '/cadastro', '/cadastrar', '/autenticar'];
 
+
+
 // Se a rota não for pública e o usuário NÃO estiver logado, bloqueia na hora e manda logar
 if (!in_array($url_atual, $rotas_publicas) && !isset($_SESSION['user_id'])) {
     header('Location: ' . \App\Config\AppConfig::url('/login'));
@@ -56,12 +58,12 @@ $router = new Router();
 
 // 🚀 ROTAS DE VISUALIZAÇÃO (MÉTODO GET)
 $router->get('/', [HomeController::class, 'index']);
+
+
 $router->get('/teste-banco', [HomeController::class, 'testeBanco']);
 
 $router->get('/login', [AuthController::class, 'mostrarLogin']);
 $router->post('/login', [AuthController::class, 'autenticarUsuario']);
-$router->get('/cadastrar', [AuthController::class, 'mostrarCadastro']);
-$router->post('/cadastrar', [AuthController::class, 'cadastrarUsuario']);
 $router->get('/sair', [AuthController::class, 'logout']);
 
 // 🚀 ROTAS DE PROCESSAMENTO DE FORMULÁRIOS (MÉTODO POST)
@@ -166,6 +168,19 @@ $router->get('/dashboard-freela', [DashboardController::class, 'freelaIndex']);
 
 // Rota para salvar as alterações do perfil do Freelancer
 $router->post('/dashboard-freela/salvar', [DashboardController::class, 'salvarPerfilFreela']);
+
+// public/index.php
+
+// ROTA BLINDADA: Aceita as duas strings visuais para carregar a tela sem dar 404
+$router->get('/cadastro', [AuthController::class, 'mostrarCadastro']);
+$router->get('/cadastrar', [AuthController::class, 'mostrarCadastro']);
+
+// Rota que processa os dados enviados pelo formulário (Método POST)
+$router->post('/cadastrar', [AuthController::class, 'cadastrarUsuario']);
+// No início do seu public/index.php, certifique-se de que a array está assim:
+$rotas_publicas = ['/', '/login', '/cadastro', '/cadastrar'];
+
+
 
 // Deixe sempre o resolve por último
 $router->resolve();

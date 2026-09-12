@@ -56,8 +56,8 @@ class AuthController {
                 $_SESSION['user_name'] = $user['name'];
                 $_SESSION['user_email'] = $user['email'];
 
-                header('Location: ' . AppConfig::url('/profissionais'));
-    exit;
+                header('Location: ' . AppConfig::url('/'));
+exit;
             } else {
                 $_SESSION['erro_auth'] = "E-mail ou senha inválidos.";
                 header('Location: ' . AppConfig::url('/login'));
@@ -101,8 +101,9 @@ class AuthController {
 
         if (!$name || !$email || empty($password)) {
             $_SESSION['erro_auth'] = "Preencha todos os campos corretamente.";
-            header('Location: ' . AppConfig::url('/profissionais'));
-    exit;
+          header('Location: ' . AppConfig::url('/'));
+exit;
+
         }
 
         try {

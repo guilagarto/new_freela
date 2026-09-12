@@ -54,13 +54,28 @@ class HomeController {
             $vagasRecentes = [];
         }
 
-        $viewPath = __DIR__ . '/../Views/home.php';
-        if (file_exists($viewPath)) {
-            require_once $viewPath;
+         // =========================================================================
+        // INTELIGÊNCIA DE DIRECIONAMENTO DA HOME (DINÂMICA)
+        // =========================================================================
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
         }
+
+        // Se o usuário ESTIVER LOGADO, ele vê a Home antiga com vagas e painéis
+        if (isset($_SESSION['user_id'])) {
+            $sViewPath = __DIR__ . '/../Views/home.php';
+        } else {
+            // Se ele NÃO ESTIVER LOGADO, ele vê a Landing Page pública de captação
+            $sViewPath = __DIR__ . '/../Views/landing_page.php';
+        }
+
+        // Carrega o arquivo visual decidido pela sessão
+        if (file_exists($sViewPath)) {
+            require_once $sViewPath;
+        }
+
+
     }
-
-
 
     /**
      * Testa a conexão real com o banco de dados

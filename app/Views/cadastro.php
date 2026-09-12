@@ -1,68 +1,61 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $titulo ?? 'Criar Conta'; ?></title>
-    <link rel="stylesheet" href="<?php echo \App\Config\AppConfig::url('/css/style.css'); ?>">
-</head>
-<body>
-    <?php include __DIR__ . '/partials/header.php'; ?>
+<?php
+// app/Views/cadastro.php
 
-<style>
-    .pagina-container-contato {
-        width: 100%;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 100px 20px 40px 20px; /* Descola o formulário para baixo do menu fixo */
-        box-sizing: border-box;
-    }
-</style>
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-    <div class="welcome-container">
-        <span class="badge-version">Novo Cadastro</span>
-        <h1 class="main-title">Criar sua Conta</h1>
-        <p class="description-text">Uma única conta para contratar profissionais ou receber por projetos.</p>
+require_once __DIR__ . '/partials/header.php'; 
+?>
 
-        <!-- Mensagens de Erro vindas do Controller -->
+<div class="container-cadastro" style="max-width: 450px; margin: 60px auto; padding: 0 15px; font-family: 'Segoe UI', sans-serif; box-sizing: border-box;">
+    
+    <div class="card-cadastro" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 30px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); box-sizing: border-box;">
+        
+        <h2 style="margin: 0 0 10px 0; font-size: 22px; color: #1e293b; font-weight: 700; text-align: center;">Criar Nova Conta</h2>
+        <p style="margin: 0 0 25px 0; color: #64748b; font-size: 14px; text-align: center;">Cadastre-se rapidamente para começar a usar o TalentoHub.</p>
+
+        <!-- ALERTA DE ERRO CASO EXISTA -->
         <?php if (isset($_SESSION['erro_auth'])): ?>
-            <div class="alert alert-danger"><?php echo $_SESSION['erro_auth']; unset($_SESSION['erro_auth']); ?></div>
+            <div style="background: #fee2e2; color: #991b1b; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; font-weight: 500; border: 1px solid #fca5a5;">
+                ❌ <?php echo $_SESSION['erro_auth']; unset($_SESSION['erro_auth']); ?>
+            </div>
         <?php endif; ?>
 
-        <!-- Formulário de Envio -->
-        <form action="<?php echo \App\Config\AppConfig::url('/cadastrar'); ?>" method="POST" class="auth-form">
-            <div class="form-group">
-                <label for="name">Nome Completo</label>
-                <input type="text" name="name" id="name" class="form-control" placeholder="Como quer ser chamado?" required>
+        <!-- FORMULÁRIO DE CADASTRO DIRECIONADO PARA O PROCESSAMENTO CORRETO -->
+        <form action="./cadastrar" method="POST" style="display: flex; flex-direction: column; gap: 18px; margin: 0;">
+            
+            <!-- CAMPO: NOME -->
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+                <label style="font-weight: 600; font-size: 13px; color: #475569;">Nome Completo:</label>
+                <input type="text" name="name" required placeholder="Digite seu nome" style="padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; background: #fff; color: #333;">
             </div>
 
-            <div class="form-group">
-                <label for="email">E-mail de Acesso</label>
-                <input type="email" name="email" id="email" class="form-control" placeholder="seu@email.com" required>
+            <!-- CAMPO: E-MAIL -->
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+                <label style="font-weight: 600; font-size: 13px; color: #475569;">E-mail de Acesso:</label>
+                <input type="email" name="email" required placeholder="seu@email.com" style="padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; background: #fff; color: #333;">
             </div>
 
-            <div class="form-group">
-                <label for="password">Crie uma Senha Segura</label>
-                <input type="password" name="password" id="password" class="form-control" placeholder="Mínimo 6 caracteres" required>
+            <!-- CAMPO: SENHA -->
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+                <label style="font-weight: 600; font-size: 13px; color: #475569;">Senha:</label>
+                <input type="password" name="password" required placeholder="Crie uma senha forte" style="padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; background: #fff; color: #333;">
             </div>
 
-         <!--  <div class="form-group">
-                <label for="tipo_cadastro">Qual seu objetivo principal?</label>
-                <select name="tipo_cadastro" id="tipo_cadastro" class="form-control" required>
-                    <option value="cliente" selected>Contratar Freelancers (Postar Vagas)</option>
-                    <option value="freelancer">Trabalhar como Freelancer (Buscar Vagas)</option>
-                </select>
-            </div>
-        -->
-            <button type="submit" class="btn-action btn-primary" style="width: 100%;">Finalizar Cadastro</button>
+            <!-- BOTÃO ENVIAR FORMULÁRIO -->
+            <button type="submit" style="background: #4f46e5; color: #ffffff; padding: 14px; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15); margin-top: 5px;">
+                🚀 Criar Conta Grátis
+            </button>
+
+            <p style="margin: 15px 0 0 0; font-size: 13px; color: #64748b; text-align: center;">
+                Já possui uma conta? <a href="./login" style="color: #4f46e5; text-decoration: none; font-weight: 600;">Faça login aqui</a>
+            </p>
+
         </form>
-
-        <p class="auth-footer-link">
-            Já possui uma conta? <a href="<?php echo \App\Config\AppConfig::url('/login'); ?>">Fazer Login</a>
-        </p>
     </div>
+</div>
 
-</body>
-<?php include __DIR__ . '/partials/footer.php'; ?>
-
-
+<?php 
+require_once __DIR__ . '/partials/footer.php'; 
+?>
